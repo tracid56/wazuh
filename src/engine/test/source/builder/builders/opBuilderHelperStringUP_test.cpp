@@ -59,6 +59,7 @@ TEST(opBuilderHelperStringUP, Builds_incorrect_number_of_arguments)
 // Test ok: static values
 TEST(opBuilderHelperStringUP, Static_string_ok)
 {
+    //TODO: From here to the end change "fielt" to "field"
     Document doc{R"({
         "normalize":
         [

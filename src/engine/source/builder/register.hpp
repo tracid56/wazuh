@@ -59,6 +59,7 @@ void registerBuilders()
     Registry::registerBuilder("helper.s_up", builders::opBuilderHelperStringUP);
     Registry::registerBuilder("helper.s_lo", builders::opBuilderHelperStringLO);
     Registry::registerBuilder("helper.s_trim", builders::opBuilderHelperStringTrim);
+    Registry::registerBuilder("helper.s_concat", builders::opBuilderHelperStringConcat);
     Registry::registerBuilder("middle.helper.i_le", builders::opBuilderHelperIntLessThanEqual);
     Registry::registerBuilder("middle.helper.i_lt", builders::opBuilderHelperIntLessThan);
     Registry::registerBuilder("middle.helper.i_ge", builders::opBuilderHelperIntGreaterThanEqual);

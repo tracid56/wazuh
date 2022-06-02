@@ -52,6 +52,14 @@ base::Lifter opBuilderHelperStringLO(const base::DocumentValue & def, types::Tra
  */
 base::Lifter opBuilderHelperStringTrim(const base::DocumentValue & def, types::TracerFn tr);
 
+/**
+ * @brief 
+ * 
+ * @param def 
+ * @param tr 
+ * @return base::Lifter 
+ */
+base::Lifter opBuilderHelperStringConcat(const base::DocumentValue& def, types::TracerFn tr);
 //*************************************************
 //*           Int tranform                        *
 //*************************************************
