@@ -59,14 +59,13 @@ TEST(opBuilderHelperStringUP, Builds_incorrect_number_of_arguments)
 // Test ok: static values
 TEST(opBuilderHelperStringUP, Static_string_ok)
 {
-    //TODO: From here to the end change "fielt" to "field"
     Document doc{R"({
         "normalize":
         [
             {
                 "map":
                 {
-                    "fieltToCreate": "+s_up/asd123asd"
+                    "fieldToCreate": "+s_up/asd123asd"
                 }
             }
         ]
@@ -76,13 +75,13 @@ TEST(opBuilderHelperStringUP, Static_string_ok)
         [=](auto s)
         {
             s.on_next(createSharedEvent(R"(
-                {"not_fieltToCreate": "qwe"}
+                {"not_fieldToCreate": "qwe"}
             )"));
             s.on_next(createSharedEvent(R"(
-                {"not_fieltToCreate": "ASD123asd"}
+                {"not_fieldToCreate": "ASD123asd"}
             )"));
             s.on_next(createSharedEvent(R"(
-                {"not_fieltToCreate": "ASD"}
+                {"not_fieldToCreate": "ASD"}
             )"));
             s.on_completed();
         });
@@ -92,9 +91,9 @@ TEST(opBuilderHelperStringUP, Static_string_ok)
     vector<Event> expected;
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 3);
-    ASSERT_STREQ(expected[0]->getEvent()->get("/fieltToCreate").GetString(), "ASD123ASD");
-    ASSERT_STREQ(expected[1]->getEvent()->get("/fieltToCreate").GetString(), "ASD123ASD");
-    ASSERT_STREQ(expected[2]->getEvent()->get("/fieltToCreate").GetString(), "ASD123ASD");
+    ASSERT_STREQ(expected[0]->getEvent()->get("/fieldToCreate").GetString(), "ASD123ASD");
+    ASSERT_STREQ(expected[1]->getEvent()->get("/fieldToCreate").GetString(), "ASD123ASD");
+    ASSERT_STREQ(expected[2]->getEvent()->get("/fieldToCreate").GetString(), "ASD123ASD");
 }
 
 // Test ok: dynamic values (string)
@@ -107,7 +106,7 @@ TEST(opBuilderHelperStringUP, Dynamics_string_ok)
             {
                 "map":
                 {
-                    "fieltToCreate": "+s_up/$srcField"
+                    "fieldToCreate": "+s_up/$srcField"
                 }
             }
         ]
@@ -133,9 +132,9 @@ TEST(opBuilderHelperStringUP, Dynamics_string_ok)
     vector<Event> expected;
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 3);
-    ASSERT_STREQ(expected[0]->getEvent()->get("/fieltToCreate").GetString(), "QWE");
-    ASSERT_STREQ(expected[1]->getEvent()->get("/fieltToCreate").GetString(), "ASD123ASD");
-    ASSERT_STREQ(expected[2]->getEvent()->get("/fieltToCreate").GetString(), "ASD");
+    ASSERT_STREQ(expected[0]->getEvent()->get("/fieldToCreate").GetString(), "QWE");
+    ASSERT_STREQ(expected[1]->getEvent()->get("/fieldToCreate").GetString(), "ASD123ASD");
+    ASSERT_STREQ(expected[2]->getEvent()->get("/fieldToCreate").GetString(), "ASD");
 }
 
 TEST(opBuilderHelperStringUP, Multilevel_src)
@@ -146,7 +145,7 @@ TEST(opBuilderHelperStringUP, Multilevel_src)
             {
                 "map":
                 {
-                    "fieltToCreate": "+s_lo/$a.b.c.srcField"
+                    "fieldToCreate": "+s_lo/$a.b.c.srcField"
                 }
             }
         ]
@@ -172,9 +171,9 @@ TEST(opBuilderHelperStringUP, Multilevel_src)
     vector<Event> expected;
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 3);
-    ASSERT_STREQ(expected[0]->getEvent()->get("/fieltToCreate").GetString(), "qwe");
-    ASSERT_STREQ(expected[1]->getEvent()->get("/fieltToCreate").GetString(), "asd123asd");
-    ASSERT_STREQ(expected[2]->getEvent()->get("/fieltToCreate").GetString(), "asd");
+    ASSERT_STREQ(expected[0]->getEvent()->get("/fieldToCreate").GetString(), "qwe");
+    ASSERT_STREQ(expected[1]->getEvent()->get("/fieldToCreate").GetString(), "asd123asd");
+    ASSERT_STREQ(expected[2]->getEvent()->get("/fieldToCreate").GetString(), "asd");
 }
 
 TEST(opBuilderHelperStringUP, Multilevel_dst)
@@ -185,7 +184,7 @@ TEST(opBuilderHelperStringUP, Multilevel_dst)
             {
                 "map":
                 {
-                    "a.b.fieltToCreate.2": "+s_lo/$a.b.c.srcField"
+                    "a.b.fieldToCreate.2": "+s_lo/$a.b.c.srcField"
                 }
             }
         ]
@@ -211,9 +210,9 @@ TEST(opBuilderHelperStringUP, Multilevel_dst)
     vector<Event> expected;
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 3);
-    ASSERT_STREQ(expected[0]->getEvent()->get("/a/b/fieltToCreate/2").GetString(), "QWE");
-    ASSERT_STREQ(expected[1]->getEvent()->get("/a/b/fieltToCreate/2").GetString(), "ASD123ASD");
-    ASSERT_STREQ(expected[2]->getEvent()->get("/a/b/fieltToCreate/2").GetString(), "ASD");
+    ASSERT_STREQ(expected[0]->getEvent()->get("/a/b/fieldToCreate/2").GetString(), "QWE");
+    ASSERT_STREQ(expected[1]->getEvent()->get("/a/b/fieldToCreate/2").GetString(), "ASD123ASD");
+    ASSERT_STREQ(expected[2]->getEvent()->get("/a/b/fieldToCreate/2").GetString(), "ASD");
 }
 
 TEST(opBuilderHelperStringUP, Exist_dst)
@@ -298,7 +297,7 @@ TEST(opBuilderHelperStringUP, Src_not_string)
             {
                 "map":
                 {
-                    "fieltToCreate": "+s_lo/$srcField123"
+                    "fieldToCreate": "+s_lo/$srcField123"
                 }
             }
         ]
@@ -324,7 +323,7 @@ TEST(opBuilderHelperStringUP, Src_not_string)
     vector<Event> expected;
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 3);
-    ASSERT_FALSE(expected[0]->getEvent()->exists("/fieltToCreate"));
-    ASSERT_FALSE(expected[1]->getEvent()->exists("/fieltToCreate"));
-    ASSERT_FALSE(expected[2]->getEvent()->exists("/fieltToCreate"));
+    ASSERT_FALSE(expected[0]->getEvent()->exists("/fieldToCreate"));
+    ASSERT_FALSE(expected[1]->getEvent()->exists("/fieldToCreate"));
+    ASSERT_FALSE(expected[2]->getEvent()->exists("/fieldToCreate"));
 }

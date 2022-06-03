@@ -31,7 +31,7 @@ namespace builder::internals::builders
  * @return base::Lifter The lifter with the `uppercase` transformation.
  * @throw std::runtime_error if the parameter is not a string.
  */
-base::Lifter opBuilderHelperStringUP(const base::DocumentValue & def, types::TracerFn tr);
+base::Lifter opBuilderHelperStringUP(const base::DocumentValue& def, types::TracerFn tr);
 
 /**
  * @brief Transforms a string to lowercase and append or remplace it in the event `e`
@@ -40,7 +40,7 @@ base::Lifter opBuilderHelperStringUP(const base::DocumentValue & def, types::Tra
  * @return base::Lifter The lifter with the `lowercase` transformation.
  * @throw std::runtime_error if the parameter is not a string.
  */
-base::Lifter opBuilderHelperStringLO(const base::DocumentValue & def, types::TracerFn tr);
+base::Lifter opBuilderHelperStringLO(const base::DocumentValue& def, types::TracerFn tr);
 
 /**
  * @brief Transforms a string, trim it and append or remplace it in the event `e`
@@ -50,7 +50,8 @@ base::Lifter opBuilderHelperStringLO(const base::DocumentValue & def, types::Tra
  * @return base::Lifter The lifter with the `trim` transformation.
  * @throw std::runtime_error if the parameter is not a string.
  */
-base::Lifter opBuilderHelperStringTrim(const base::DocumentValue & def, types::TracerFn tr);
+base::Lifter opBuilderHelperStringTrim(const base::DocumentValue& def,
+                                       types::TracerFn tr);
 
 /**
  * @brief Transform a list of arguments into a single strim with all of them concatenated
@@ -59,7 +60,8 @@ base::Lifter opBuilderHelperStringTrim(const base::DocumentValue & def, types::T
  * i.e : '<field>: +s_concat/<stringA>|$<referenceA>/<stringB>|$<referenceB>/...'
  * @return base::Lifter The lifter with the `concat` transformation.
  */
-base::Lifter opBuilderHelperStringConcat(const base::DocumentValue& def, types::TracerFn tr);
+base::Lifter opBuilderHelperStringConcat(const base::DocumentValue& def,
+                                         types::TracerFn tr);
 //*************************************************
 //*           Int tranform                        *
 //*************************************************
@@ -72,7 +74,7 @@ base::Lifter opBuilderHelperStringConcat(const base::DocumentValue& def, types::
  * @return base::Lifter The lifter with the `mathematical operation` transformation.
  * @throw std::runtime_error if the parameter is not a integer.
  */
-base::Lifter opBuilderHelperIntCalc(const base::DocumentValue & def, types::TracerFn tr);
+base::Lifter opBuilderHelperIntCalc(const base::DocumentValue& def, types::TracerFn tr);
 
 //*************************************************
 //*           Regex tranform                      *
@@ -86,7 +88,8 @@ base::Lifter opBuilderHelperIntCalc(const base::DocumentValue & def, types::Trac
  * @return base::Lifter The lifter with the `regex extract` transformation.
  * @throw std::runtime_error if the parameter is the regex is invalid.
  */
-base::Lifter opBuilderHelperRegexExtract(const base::DocumentValue & def, types::TracerFn tr);
+base::Lifter opBuilderHelperRegexExtract(const base::DocumentValue& def,
+                                         types::TracerFn tr);
 
 } // namespace builder::internals::builders
 

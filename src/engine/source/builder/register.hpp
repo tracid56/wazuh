@@ -24,10 +24,10 @@
 #include <builders/opBuilderFileOutput.hpp>
 #include <builders/opBuilderHelperFilter.hpp>
 #include <builders/opBuilderHelperMap.hpp>
+#include <builders/opBuilderKVDB.hpp>
 #include <builders/opBuilderMap.hpp>
 #include <builders/opBuilderMapReference.hpp>
 #include <builders/opBuilderMapValue.hpp>
-#include <builders/opBuilderKVDB.hpp>
 #include <builders/stageBuilderCheck.hpp>
 #include <builders/stageBuilderNormalize.hpp>
 #include <builders/stageBuilderOutputs.hpp>
@@ -49,7 +49,8 @@ void registerBuilders()
     // Helpers
     // TODO : Separate helpers in filters and maps
     Registry::registerBuilder("middle.helper.exists", builders::opBuilderHelperExists);
-    Registry::registerBuilder("middle.helper.not_exists", builders::opBuilderHelperNotExists);
+    Registry::registerBuilder("middle.helper.not_exists",
+                              builders::opBuilderHelperNotExists);
     Registry::registerBuilder("middle.helper.s_le", builders::opBuilderHelperStringLE);
     Registry::registerBuilder("middle.helper.s_lt", builders::opBuilderHelperStringLT);
     Registry::registerBuilder("middle.helper.s_ge", builders::opBuilderHelperStringGE);
@@ -60,16 +61,22 @@ void registerBuilders()
     Registry::registerBuilder("helper.s_lo", builders::opBuilderHelperStringLO);
     Registry::registerBuilder("helper.s_trim", builders::opBuilderHelperStringTrim);
     Registry::registerBuilder("helper.s_concat", builders::opBuilderHelperStringConcat);
-    Registry::registerBuilder("middle.helper.i_le", builders::opBuilderHelperIntLessThanEqual);
+    Registry::registerBuilder("middle.helper.i_le",
+                              builders::opBuilderHelperIntLessThanEqual);
     Registry::registerBuilder("middle.helper.i_lt", builders::opBuilderHelperIntLessThan);
-    Registry::registerBuilder("middle.helper.i_ge", builders::opBuilderHelperIntGreaterThanEqual);
-    Registry::registerBuilder("middle.helper.i_gt", builders::opBuilderHelperIntGreaterThan);
+    Registry::registerBuilder("middle.helper.i_ge",
+                              builders::opBuilderHelperIntGreaterThanEqual);
+    Registry::registerBuilder("middle.helper.i_gt",
+                              builders::opBuilderHelperIntGreaterThan);
     Registry::registerBuilder("middle.helper.i_eq", builders::opBuilderHelperIntEqual);
     Registry::registerBuilder("middle.helper.i_ne", builders::opBuilderHelperIntNotEqual);
     Registry::registerBuilder("helper.i_calc", builders::opBuilderHelperIntCalc);
-    Registry::registerBuilder("middle.helper.r_match", builders::opBuilderHelperRegexMatch);
-    Registry::registerBuilder("middle.helper.r_not_match", builders::opBuilderHelperRegexNotMatch);
-    Registry::registerBuilder("middle.helper.r_ext", builders::opBuilderHelperRegexExtract);
+    Registry::registerBuilder("middle.helper.r_match",
+                              builders::opBuilderHelperRegexMatch);
+    Registry::registerBuilder("middle.helper.r_not_match",
+                              builders::opBuilderHelperRegexNotMatch);
+    Registry::registerBuilder("middle.helper.r_ext",
+                              builders::opBuilderHelperRegexExtract);
     Registry::registerBuilder("middle.helper.ip_cidr", builders::opBuilderHelperIPCIDR);
     // KVDB Helpers
     Registry::registerBuilder("helper.kvdb_extract", builders::opBuilderKVDBExtract);
@@ -77,7 +84,8 @@ void registerBuilders()
     Registry::registerBuilder("helper.kvdb_notmatch", builders::opBuilderKVDBNotMatch);
     // Combinators
     Registry::registerBuilder("combinator.chain", builders::combinatorBuilderChain);
-    Registry::registerBuilder("combinator.broadcast", builders::combinatorBuilderBroadcast);
+    Registry::registerBuilder("combinator.broadcast",
+                              builders::combinatorBuilderBroadcast);
     // Stages
     Registry::registerBuilder("check", builders::stageBuilderCheck);
     Registry::registerBuilder("allow", builders::stageBuilderCheck);
