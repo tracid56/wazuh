@@ -21,8 +21,8 @@ target_link_libraries(ipUtils_test gtest_main base)
 gtest_discover_tests(ipUtils_test)
 
 add_executable(socketInterface_test
-  socketInterface/unixSocketInterface_test.cpp
-  ${SHARED_ENGINE_SOURCE_DIR}/socketInterface/unixSocketInterface.cpp
+  socketInterface/unixStream_test.cpp
+  ${SHARED_ENGINE_SOURCE_DIR}/socketInterface/unixStream.cpp
 )
 
 target_include_directories(socketInterface_test
