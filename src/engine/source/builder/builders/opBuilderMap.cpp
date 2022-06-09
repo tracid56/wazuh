@@ -50,7 +50,7 @@ base::Lifter opBuilderMap(const base::DocumentValue& def, types::TracerFn tr)
             // TODO: handle that only allowed map helpers are built
             case syntax::FUNCTION_HELPER_ANCHOR:
                 return std::get<types::OpBuilder>(Registry::getBuilder(
-                    "helper." + vStr.substr(1, std::string::npos)))(def, tr);
+                    "helper." + vStr.substr(1, vStr.find("/") - 1)))(def, tr);
                 break;
             case syntax::REFERENCE_ANCHOR:
                 return std::get<types::OpBuilder>(
