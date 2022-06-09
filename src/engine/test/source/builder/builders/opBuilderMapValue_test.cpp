@@ -25,12 +25,11 @@ static FakeTrFn tr = [](std::string msg) {
 TEST(opBuilderMapValue, Builds)
 {
     Document doc {R"({
-        "map":
-        {
-            "mapped.string": "value",
-            "mapped.int": 1,
-            "mapped.bool": true
-        }
+        "map": [
+            {"mapped.string": "value"},
+            {"mapped.int": 1},
+            {"mapped.bool": true}
+        ]
     })"};
     const auto &arr = doc.begin()->value.GetArray();
     for (auto it = arr.Begin(); it != arr.end(); ++it)
