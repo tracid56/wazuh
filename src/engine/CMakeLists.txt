@@ -108,7 +108,7 @@ add_subdirectory(${ENGINE_SOURCE_DIR}/server)
 add_subdirectory(${ENGINE_SOURCE_DIR}/wdb)
 
 #TODO isolate rxcpp
-target_link_libraries(main base builders catalog wdb)
+target_link_libraries(main base builders catalog wdb server)
 
 # Build test
 if(ENGINE_BUILD_TEST)

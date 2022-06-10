@@ -26,6 +26,7 @@
 
 namespace builder::internals::builders
 {
+// TODO: this would be nice to have it as a shared resource
 static bool
 any2Json(std::any const& anyVal, std::string const& path, json::Document* doc)
 {
