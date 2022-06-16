@@ -21,11 +21,11 @@ target_link_libraries(ipUtils_test gtest_main base)
 gtest_discover_tests(ipUtils_test)
 
 add_executable(socketInterface_test
+  ${SHARED_ENGINE_SOURCE_DIR}/socketInterface/unixSecureStream.cpp
   socketInterface/testAuxiliar/socketAuxiliarFunctions.cpp
   socketInterface/testAuxiliar/socketAuxiliarFunctions.hpp
-  socketInterface/unixStream_test.cpp
+  socketInterface/unixSecureStream_test.cpp
   socketInterface/unixDatagram_test.cpp
-  ${SHARED_ENGINE_SOURCE_DIR}/socketInterface/unixSecureStream.cpp
 )
 
 target_include_directories(socketInterface_test
