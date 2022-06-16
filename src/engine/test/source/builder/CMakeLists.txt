@@ -27,6 +27,8 @@ include_directories(
   ${ENGINE_SOURCE_DIR}/json
   ${ENGINE_SOURCE_DIR}/graph
   ${RxCpp_SOURCE_DIR}/Rx/v2/src
+  ${ENGINE_SOURCE_DIR}/wdb/src
+  ${TEST_SOURCE_DIR}/base/socketInterface/testAuxiliar/
 )
 
 #TODO do this better
@@ -156,6 +158,18 @@ add_executable(opBuilderKVDBTest
   ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/opBuilderKVDBNotMatch_test.cpp
 )
 gtest_discover_tests(opBuilderKVDBTest)
+
+add_executable(opBuilderWdbSyncUpdateTest
+  ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/opBuilderWdbSyncUpdate_test.cpp
+  ${TEST_SOURCE_DIR}/base/socketInterface/testAuxiliar/socketAuxiliarFunctions.cpp
+)
+gtest_discover_tests(opBuilderWdbSyncUpdateTest)
+
+add_executable(opBuilderWdbSyncQueryTest
+  ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/opBuilderWdbSyncQuery_test.cpp
+  ${TEST_SOURCE_DIR}/base/socketInterface/testAuxiliar/socketAuxiliarFunctions.cpp
+)
+gtest_discover_tests(opBuilderWdbSyncQueryTest)
 
 add_executable(combinatorBuilderBroadcastTest
   ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/combinatorBuilderBroadcast_test.cpp

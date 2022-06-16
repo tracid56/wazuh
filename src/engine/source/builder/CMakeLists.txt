@@ -32,6 +32,7 @@ add_library(builders OBJECT
     builders/opBuilderMap.cpp
     builders/opBuilderMapReference.cpp
     builders/opBuilderMapValue.cpp
+    builders/opBuilderWdbSync.cpp
     builders/opBuilderKVDB.cpp
     builders/stageBuilderCheck.cpp
     builders/stageBuilderNormalize.cpp
@@ -43,6 +44,7 @@ add_library(builders OBJECT
 
 target_include_directories(builders
     PRIVATE
+    ${ENGINE_SOURCE_DIR}/wdb/src
     #TODO fix this?
     ${ENGINE_SOURCE_DIR}/json
     PUBLIC
@@ -51,4 +53,5 @@ target_include_directories(builders
 )
 
 #TODO do this better. Also, who 'owns' the rxcpp dep
-target_link_libraries(builders base hlp kvdb re2)
+#TODO: check if server needs to be here
+target_link_libraries(builders base hlp kvdb re2 server wdb)

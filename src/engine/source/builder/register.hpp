@@ -28,6 +28,7 @@
 #include <builders/opBuilderMap.hpp>
 #include <builders/opBuilderMapReference.hpp>
 #include <builders/opBuilderMapValue.hpp>
+#include <builders/opBuilderWdbSync.hpp>
 #include <builders/stageBuilderCheck.hpp>
 #include <builders/stageBuilderNormalize.hpp>
 #include <builders/stageBuilderOutputs.hpp>
@@ -82,6 +83,9 @@ void registerBuilders()
     Registry::registerBuilder("helper.kvdb_extract", builders::opBuilderKVDBExtract);
     Registry::registerBuilder("helper.kvdb_match", builders::opBuilderKVDBMatch);
     Registry::registerBuilder("helper.kvdb_notmatch", builders::opBuilderKVDBNotMatch);
+    // DB sync
+    Registry::registerBuilder("helper.wdb_query", builders::opBuilderWdbSyncQuery);
+    Registry::registerBuilder("helper.wdb_update", builders::opBuilderWdbSyncUpdate);
     // Combinators
     Registry::registerBuilder("combinator.chain", builders::combinatorBuilderChain);
     Registry::registerBuilder("combinator.broadcast",
