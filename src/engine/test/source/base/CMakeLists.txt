@@ -22,8 +22,10 @@ gtest_discover_tests(ipUtils_test)
 
 add_executable(socketInterface_test
   ${SHARED_ENGINE_SOURCE_DIR}/socketInterface/unixSecureStream.cpp
+  ${SHARED_ENGINE_SOURCE_DIR}/socketInterface/unixDatagram.cpp
   socketInterface/testAuxiliar/socketAuxiliarFunctions.cpp
   socketInterface/testAuxiliar/socketAuxiliarFunctions.hpp
+  socketInterface/testAuxiliar/socketAuxiliarFunctions_test.cpp
   socketInterface/unixSecureStream_test.cpp
   socketInterface/unixDatagram_test.cpp
 )
@@ -31,6 +33,7 @@ add_executable(socketInterface_test
 target_include_directories(socketInterface_test
     PRIVATE
     testAuxiliar/
+    ${SHARED_ENGINE_SOURCE_DIR}/socketInterface/
 )
 
 target_link_libraries(socketInterface_test gtest_main base)
