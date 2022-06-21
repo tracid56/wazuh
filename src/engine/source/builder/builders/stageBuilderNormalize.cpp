@@ -93,8 +93,7 @@ static Lifter normalizeMap(const DocumentValue& ref, TracerFn tr)
     catch (std::exception& e)
     {
         auto msg = format(
-            "Stage normalize builder encountered exception on building: [{}]",
-            e.what());
+            "Stage normalize builder encountered exception on building: [{}]", e.what());
         WAZUH_LOG_ERROR("{}", msg);
         throw_with_nested(runtime_error(msg));
     }
@@ -128,8 +127,7 @@ static Lifter normalizeCheck(const DocumentValue& ref, TracerFn tr)
     catch (std::exception& e)
     {
         auto msg = format(
-            "Stage normalize builder encountered exception on building: [{}]",
-            e.what());
+            "Stage normalize builder encountered exception on building: [{}]", e.what());
         WAZUH_LOG_ERROR("{}", msg);
         throw_with_nested(runtime_error(msg));
     }
@@ -142,8 +140,7 @@ static Lifter normalizeCheck(const DocumentValue& ref, TracerFn tr)
     catch (std::exception& e)
     {
         auto msg = format(
-            "Stage normalize builder encountered exception on building: [{}]",
-            e.what());
+            "Stage normalize builder encountered exception on building: [{}]", e.what());
         WAZUH_LOG_ERROR("{}", msg);
         throw_with_nested(runtime_error(msg));
     }
@@ -154,10 +151,9 @@ static Lifter normalizeConditionalMap(const DocumentValue& def, TracerFn tr)
     // Normalize stage must always have exactly two elements: "check" and "map"
     if (def.MemberCount() != 2)
     {
-        auto msg =
-            format("Invalid conditional map configuration, two (2) elements "
-                   "were expected, \"check\" and \"map\", but got: {}",
-                   def.MemberCount());
+        auto msg = format("Invalid conditional map configuration, two (2) elements "
+                          "were expected, \"check\" and \"map\", but got: {}",
+                          def.MemberCount());
         WAZUH_LOG_ERROR("{}", msg);
         throw_with_nested(invalid_argument(msg));
     }
@@ -242,9 +238,9 @@ Lifter stageBuilderNormalize(const DocumentValue& def, TracerFn tr)
                 {
                     if (obj.MemberCount() != 1)
                     {
-                        auto msg = format(
-                            "Stage normalize builder, expected only a \"map\" "
-                            "object but got more than one objects.");
+                        auto msg =
+                            format("Stage normalize builder, expected only a \"map\" "
+                                   "object but got more than one objects.");
                         WAZUH_LOG_ERROR("{}", msg);
                         throw_with_nested(invalid_argument(msg));
                     }
@@ -252,16 +248,15 @@ Lifter stageBuilderNormalize(const DocumentValue& def, TracerFn tr)
                     {
                         if (doMap)
                         {
-                            auto msg = format(
-                                "Stage normalize builder, expected only one "
-                                "\"map\" object but got more than one.");
+                            auto msg =
+                                format("Stage normalize builder, expected only one "
+                                       "\"map\" object but got more than one.");
                             WAZUH_LOG_ERROR("{}", msg);
                             throw_with_nested(invalid_argument(msg));
                         }
                         else
                         {
-                            normalizeOps.push_back(
-                                normalizeMap(obj["map"], tr));
+                            normalizeOps.push_back(normalizeMap(obj["map"], tr));
                             doMap = true;
                         }
                     }
@@ -320,8 +315,7 @@ Lifter stageBuilderNormalize(const DocumentValue& def, TracerFn tr)
     catch (std::exception& e)
     {
         auto msg = format(
-            "Stage normalize builder encountered exception on building: [{}]",
-            e.what());
+            "Stage normalize builder encountered exception on building: [{}]", e.what());
         WAZUH_LOG_ERROR("{}", msg);
         throw_with_nested(runtime_error(msg));
     }

@@ -137,31 +137,21 @@ TEST(StageBuilderNormalize, BuildFullNormalize)
 {
     /** Operations/Stages must be registered only once in the tests (after doing
      * so, they remain registered). */
-    BuilderVariant c;
 
     // "map" operations
-    c = opBuilderMapValue;
-    Registry::registerBuilder("map.value", c);
-    c = opBuilderMapReference;
-    Registry::registerBuilder("map.reference", c);
-    c = opBuilderMap;
-    Registry::registerBuilder("map", c);
+    Registry::registerBuilder("map.value", opBuilderMapValue);
+    Registry::registerBuilder("map.reference", opBuilderMapReference);
+    Registry::registerBuilder("map", opBuilderMap);
 
     // "check" operations
-    c = stageBuilderCheck;
-    Registry::registerBuilder("check", c);
-    c = opBuilderCondition;
-    Registry::registerBuilder("condition", c);
-    c = middleBuilderCondition;
-    Registry::registerBuilder("middle.condition", c);
-    c = opBuilderHelperExists;
-    Registry::registerBuilder("middle.helper.exists", c);
+    Registry::registerBuilder("check", stageBuilderCheck);
+    Registry::registerBuilder("condition", opBuilderCondition);
+    Registry::registerBuilder("middle.condition", middleBuilderCondition);
+    Registry::registerBuilder("middle.helper.exists", opBuilderHelperExists);
 
     // combinators
-    c = combinatorBuilderChain;
-    Registry::registerBuilder("combinator.chain", c);
-    c = combinatorBuilderBroadcast;
-    Registry::registerBuilder("combinator.broadcast", c);
+    Registry::registerBuilder("combinator.chain", combinatorBuilderChain);
+    Registry::registerBuilder("combinator.broadcast", combinatorBuilderBroadcast);
 
     Document doc {R"(
         {

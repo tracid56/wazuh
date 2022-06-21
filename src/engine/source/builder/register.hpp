@@ -20,6 +20,7 @@
 #include <builders/assetBuilderRule.hpp>
 #include <builders/combinatorBuilderBroadcast.hpp>
 #include <builders/combinatorBuilderChain.hpp>
+#include <builders/opBuilderARWrite.hpp>
 #include <builders/opBuilderCondition.hpp>
 #include <builders/opBuilderFileOutput.hpp>
 #include <builders/opBuilderHelperFilter.hpp>
@@ -86,6 +87,7 @@ void registerBuilders()
     // DB sync
     Registry::registerBuilder("helper.wdb_query", builders::opBuilderWdbSyncQuery);
     Registry::registerBuilder("helper.wdb_update", builders::opBuilderWdbSyncUpdate);
+    Registry::registerBuilder("helper.ar_write", builders::opBuilderARWrite);
     // Combinators
     Registry::registerBuilder("combinator.chain", builders::combinatorBuilderChain);
     Registry::registerBuilder("combinator.broadcast",

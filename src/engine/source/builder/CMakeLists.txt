@@ -29,11 +29,12 @@ add_library(builders OBJECT
     builders/opBuilderFileOutput.cpp
     builders/opBuilderHelperFilter.cpp
     builders/opBuilderHelperMap.cpp
+    builders/opBuilderKVDB.cpp
     builders/opBuilderMap.cpp
     builders/opBuilderMapReference.cpp
     builders/opBuilderMapValue.cpp
     builders/opBuilderWdbSync.cpp
-    builders/opBuilderKVDB.cpp
+    builders/opBuilderARWrite.cpp
     builders/stageBuilderCheck.cpp
     builders/stageBuilderNormalize.cpp
     builders/stageBuilderOutputs.cpp
