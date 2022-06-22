@@ -3,12 +3,13 @@
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 
+from wazuh.core import common
 from wazuh.core.agent import Agent, get_agents_info
 from wazuh.core.cluster.cluster import get_node
 from wazuh.core.cluster.utils import read_cluster_config
-from wazuh.core.results import AffectedItemsWazuhResult
-from wazuh.core.stats import get_daemons_stats_, hourly_, totals_, weekly_
 from wazuh.core.exception import WazuhException, WazuhResourceNotFound
+from wazuh.core.results import AffectedItemsWazuhResult, WazuhResult
+from wazuh.core.stats import hourly_, totals_, weekly_, send_getstats_message
 from wazuh.rbac.decorators import expose_resources
 
 cluster_enabled = not read_cluster_config(from_import=True)['disabled']
@@ -83,28 +84,26 @@ def weekly():
 
 @expose_resources(actions=[f"{'cluster' if cluster_enabled else 'manager'}:read"],
                   resources=[f'node:id:{node_id}' if cluster_enabled else '*:*:*'])
-def get_daemons_stats(filename):
-    """Get daemons stats from an input file.
+def get_daemons_stats(daemon: str) -> WazuhResult:
+    """Get statistical information from a specified daemon.
 
     Parameters
     ----------
-    filename: str
-        Full path of the file to get information.
+    daemon : str
+        Name of the daemon to get the stats from.
 
     Returns
     -------
-    AffectedItemsWazuhResult
-        Dictionary with the stats of the input file.
+    WazuhResult
+        Dictionary with the daemon's statistical information.
     """
-    result = AffectedItemsWazuhResult(
-        all_msg='Statistical information for each node was successfully read',
-        some_msg='Could not read statistical information for some nodes',
-        none_msg='Could not read statistical information for any node'
-        )
-    result.affected_items = get_daemons_stats_(filename)
-    result.total_affected_items = len(result.affected_items)
+    daemons_sockets = {
+        'analysisd': common.ANALYSISD_SOCKET,
+        'remoted': common.REMOTED_SOCKET,
+        'wazuh-db': common.WDB_SOCKET
+    }
 
-    return result
+    return WazuhResult({'data': send_getstats_message(daemons_sockets[daemon])})
 
 
 @expose_resources(actions=["agent:read"], resources=["agent:id:{agent_list}"], post_proc_func=None)

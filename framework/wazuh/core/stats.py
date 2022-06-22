@@ -1,13 +1,13 @@
 # Copyright (C) 2015, Wazuh Inc.
 # Created by Wazuh, Inc. <info@wazuh.com>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
+
 import json
 import os
-import re
 
 from wazuh.core import common, utils
-from wazuh.core.exception import WazuhError, WazuhInternalError
-from wazuh.core.wazuh_socket import WazuhSocket
+from wazuh.core import exception
+from wazuh.core import wazuh_socket
 
 DAYS = "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 MONTHS = "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
@@ -95,7 +95,7 @@ def totals_(date=utils.get_utc_now()):
         with open(stat_filename, mode='r') as statsf:
             stats = statsf.readlines()
     except IOError:
-        raise WazuhError(1308, extra_message=stat_filename)
+        raise exception.WazuhError(1308, extra_message=stat_filename)
 
     alerts = []
     affected = []
@@ -109,7 +109,7 @@ def totals_(date=utils.get_utc_now()):
                 if len(data) in (0, 1):
                     continue
                 else:
-                    raise WazuhInternalError(1309)
+                    raise exception.WazuhInternalError(1309)
             affected.append({'hour': int(data[0]), 'alerts': alerts, 'totalAlerts': int(data[1]),
                              'events': int(data[2]), 'syscheck': int(data[3]), 'firewall': int(data[4])})
             alerts = []
@@ -117,38 +117,39 @@ def totals_(date=utils.get_utc_now()):
     return affected
 
 
-def get_daemons_stats_(filename):
-    """Get daemons stats from an input file.
+def send_getstats_message(socket_path: str) -> dict:
+    """Send the message to get statistical information to the specified daemon's socket.
 
     Parameters
     ----------
-    filename: str
-        Full path of the file to get information.
-
-    Returns
-    -------
-    array
-        Stats of the input file.
+    socket_path : str
+        Path of the socket to send the message to.
 
     Raises
     ------
-    WazuhError
-        Raised if file does not exist.
-    """
-    try:
-        items = {}
-        with open(filename, mode='r') as f:
-            daemons_data = f.read()
-        try:
-            kv_regex = re.compile(r'(^\w*)=(.*)', re.MULTILINE)
-            for key, value in kv_regex.findall(daemons_data):
-                items[key] = float(value[1:-1])
-        except Exception as e:
-            raise WazuhInternalError(1104, extra_message=str(e))
-    except IOError:
-        raise WazuhError(1308, extra_message=filename)
+    WazuhInternalError(1013)
+        If it is unable to connect to socket.
 
-    return [items]
+    Returns
+    -------
+    dict
+        Socket response.
+    """
+    msg = wazuh_socket.create_wazuh_socket_message(origin={'module': common.origin_module.get()}, command='getstats')
+
+    # Connect to socket
+    s = wazuh_socket.WazuhSocketJSON(socket_path)
+
+    # Send getstats command
+    s.send(msg)
+
+    # Receive statistical information from socket
+    data = s.receive()
+    s.close()
+
+    data['timestamp'] = utils.get_date_from_timestamp(data['timestamp'])
+
+    return data
 
 
 def get_daemons_stats_from_socket(agent_id, daemon):
@@ -167,14 +168,14 @@ def get_daemons_stats_from_socket(agent_id, daemon):
         Object with daemon's stats.
     """
     if not agent_id or not daemon:
-        raise WazuhError(1307)
+        raise exception.WazuhError(1307)
 
     sockets_path = os.path.join(common.WAZUH_PATH, "queue", "sockets")
 
     if str(agent_id).zfill(3) == '000':
         # Some daemons do not exist in agent 000
         if daemon in {'agent'}:
-            raise WazuhError(1310)
+            raise exception.WazuhError(1310)
         dest_socket = os.path.join(sockets_path, daemon)
         command = "getstate"
     else:
@@ -183,9 +184,9 @@ def get_daemons_stats_from_socket(agent_id, daemon):
 
     # Socket connection
     try:
-        s = WazuhSocket(dest_socket)
+        s = wazuh_socket.WazuhSocket(dest_socket)
     except Exception:
-        raise WazuhInternalError(1121)
+        raise exception.WazuhInternalError(1121)
 
     # Send message
     s.send(command.encode())
@@ -194,7 +195,7 @@ def get_daemons_stats_from_socket(agent_id, daemon):
     try:
         rec_msg = s.receive().decode()
     except ValueError:
-        raise WazuhInternalError(1118, extra_message="Data could not be received")
+        raise exception.WazuhInternalError(1118, extra_message="Data could not be received")
 
     s.close()
 
@@ -206,4 +207,4 @@ def get_daemons_stats_from_socket(agent_id, daemon):
         return data
     except Exception:
         rec_msg = rec_msg.split(" ", 1)[1]
-        raise WazuhError(1117, extra_message=rec_msg)
+        raise exception.WazuhError(1117, extra_message=rec_msg)

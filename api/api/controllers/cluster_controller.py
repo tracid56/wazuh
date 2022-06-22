@@ -347,15 +347,27 @@ async def get_stats_weekly_node(request, node_id, pretty=False, wait_for_complet
     return web.json_response(data=data, status=200, dumps=prettify if pretty else dumps)
 
 
-async def get_stats_analysisd_node(request, node_id, pretty=False, wait_for_complete=False):
-    """Get a specified node's analysisd stats.
+async def get_stats_daemon(request, node_id: str, daemon: str, pretty: bool = False,
+                           wait_for_complete: bool = False) -> web.Response:
+    """Get statistical information from a specified node's daemon.
 
-    :param node_id: Cluster node name.
-    :param pretty: Show results in human-readable format
-    :param wait_for_complete: Disable timeout response
+    Parameters
+    ----------
+    node_id : str
+        Cluster node name.
+    daemon : str
+        Name of the daemon to get the stats from.
+    pretty : bool
+        Show results in a human-readable format.
+    wait_for_complete : bool
+        Disable timeout response.
+
+    Returns
+    -------
+    web.Response
+        JSON response with the daemon's statistical information.
     """
-    f_kwargs = {'node_id': node_id,
-                'filename': common.ANALYSISD_STATS}
+    f_kwargs = {'node_id': node_id, 'daemon': daemon}
 
     nodes = raise_if_exc(await get_system_nodes())
     dapi = DistributedAPI(f=stats.get_daemons_stats,
@@ -365,33 +377,7 @@ async def get_stats_analysisd_node(request, node_id, pretty=False, wait_for_comp
                           wait_for_complete=wait_for_complete,
                           logger=logger,
                           rbac_permissions=request['token_info']['rbac_policies'],
-                          nodes=nodes
-                          )
-    data = raise_if_exc(await dapi.distribute_function())
-
-    return web.json_response(data=data, status=200, dumps=prettify if pretty else dumps)
-
-
-async def get_stats_remoted_node(request, node_id, pretty=False, wait_for_complete=False):
-    """Get a specified node's remoted stats.
-
-    :param node_id: Cluster node name.
-    :param pretty: Show results in human-readable format
-    :param wait_for_complete: Disable timeout response
-    """
-    f_kwargs = {'node_id': node_id,
-                'filename': common.REMOTED_STATS}
-
-    nodes = raise_if_exc(await get_system_nodes())
-    dapi = DistributedAPI(f=stats.get_daemons_stats,
-                          f_kwargs=remove_nones_to_dict(f_kwargs),
-                          request_type='distributed_master',
-                          is_async=False,
-                          wait_for_complete=wait_for_complete,
-                          logger=logger,
-                          rbac_permissions=request['token_info']['rbac_policies'],
-                          nodes=nodes
-                          )
+                          nodes=nodes)
     data = raise_if_exc(await dapi.distribute_function())
 
     return web.json_response(data=data, status=200, dumps=prettify if pretty else dumps)
@@ -569,7 +555,7 @@ async def get_node_config(request, node_id, component, wait_for_complete=False, 
     return web.json_response(data=data, status=200, dumps=prettify if pretty else dumps)
 
 
-async def update_configuration(request, node_id, body,  pretty=False, wait_for_complete=False):
+async def update_configuration(request, node_id, body, pretty=False, wait_for_complete=False):
     """Update Wazuh configuration (ossec.conf) in node node_id.
 
     Parameters
