@@ -52,7 +52,7 @@ base::Event opBuilderHelperStringTransformation(const std::string field,
         const rapidjson::Value* refValueToCheck {};
         try
         {
-            refValueToCheck = &e->getEvent()->get(refValue.value());
+            refValueToCheck = &e->getEventValue(refValue.value());
         }
         catch (std::exception& ex)
         {
@@ -96,8 +96,7 @@ base::Event opBuilderHelperStringTransformation(const std::string field,
     {
         e->getEvent()->set(
             field,
-            rapidjson::Value(value.value().c_str(), e->getEvent()->m_doc.GetAllocator())
-                .Move());
+            rapidjson::Value(value.value().c_str(), e->getEventDocAllocator()).Move());
     }
     catch (std::exception& ex)
     {
@@ -136,7 +135,7 @@ base::Event opBuilderHelperIntTransformation(const std::string field,
     const rapidjson::Value* fieldValue {};
     try
     {
-        fieldValue = &e->getEvent()->get(field);
+        fieldValue = &e->getEventValue(field);
     }
     catch (std::exception& ex)
     {
@@ -157,7 +156,7 @@ base::Event opBuilderHelperIntTransformation(const std::string field,
         const rapidjson::Value* refValueToCheck {};
         try
         {
-            refValueToCheck = &e->getEvent()->get(refValue.value());
+            refValueToCheck = &e->getEventValue(refValue.value());
         }
         catch (std::exception& ex)
         {
@@ -258,14 +257,12 @@ base::Lifter opBuilderHelperStringUP(const base::DocumentValue& def, types::Trac
     }
 
     // Return Lifter
-    return [=](base::Observable o)
-    {
+    return [=](base::Observable o) {
         // Append rxcpp operation
-        return o.map(
-            [key, expectedStr, refExpStr](base::Event e) {
-                return opBuilderHelperStringTransformation(
-                    key, 'u', e, refExpStr, expectedStr);
-            });
+        return o.map([key, expectedStr, refExpStr](base::Event e) {
+            return opBuilderHelperStringTransformation(
+                key, 'u', e, refExpStr, expectedStr);
+        });
     };
 }
 
@@ -305,14 +302,12 @@ base::Lifter opBuilderHelperStringLO(const base::DocumentValue& def, types::Trac
     }
 
     // Return Lifter
-    return [=](base::Observable o)
-    {
+    return [=](base::Observable o) {
         // Append rxcpp operation
-        return o.map(
-            [key, expectedStr, refExpStr](base::Event e) {
-                return opBuilderHelperStringTransformation(
-                    key, 'l', e, refExpStr, expectedStr);
-            });
+        return o.map([key, expectedStr, refExpStr](base::Event e) {
+            return opBuilderHelperStringTransformation(
+                key, 'l', e, refExpStr, expectedStr);
+        });
     };
 }
 
@@ -340,10 +335,10 @@ base::Lifter opBuilderHelperStringTrim(const base::DocumentValue& def, types::Tr
     }
 
     // Get trim type
-    char trimType = parametersArr[1] == "begin"  ? 's'
-                    : parametersArr[1] == "end"  ? 'e'
-                    : parametersArr[1] == "both" ? 'b'
-                                                 : '\0';
+    char trimType =
+        parametersArr[1] == "begin"
+            ? 's'
+            : parametersArr[1] == "end" ? 'e' : parametersArr[1] == "both" ? 'b' : '\0';
     if (trimType == '\0')
     {
         throw std::runtime_error("Invalid trim type for s_trim operator");
@@ -357,73 +352,69 @@ base::Lifter opBuilderHelperStringTrim(const base::DocumentValue& def, types::Tr
     }
 
     // Return Lifter
-    return [=](base::Observable o)
-    {
+    return [=](base::Observable o) {
         // Append rxcpp operation
-        return o.map(
-            [field, trimType, trimChar](base::Event e)
+        return o.map([field, trimType, trimChar](base::Event e) {
+            // Shoulbe short after refact, witout try catch
+            // Get field value
+            const rapidjson::Value* fieldValue;
+            try
             {
-                // Shoulbe short after refact, witout try catch
-                // Get field value
-                const rapidjson::Value* fieldValue;
-                try
-                {
-                    fieldValue = &e->getEvent()->get(field);
-                }
-                catch (std::exception& ex)
-                {
-                    // TODO Check exception type
-                    return e;
-                }
-
-                // Check if field is a string
-                if (fieldValue == nullptr || !fieldValue->IsString())
-                {
-                    return e;
-                }
-
-                // Get string
-                std::string strToTrim {fieldValue->GetString()};
-
-                // Trim
-                switch (trimType)
-                {
-                    case 's':
-                        // Trim begin
-                        strToTrim.erase(0, strToTrim.find_first_not_of(trimChar));
-                        break;
-                    case 'e':
-                        // Trim end
-                        strToTrim.erase(strToTrim.find_last_not_of(trimChar) + 1);
-                        break;
-                    case 'b':
-                        // Trim both
-                        strToTrim.erase(0, strToTrim.find_first_not_of(trimChar));
-                        strToTrim.erase(strToTrim.find_last_not_of(trimChar) + 1);
-                        break;
-                    default:
-                        // if raise here, then the source code is wrong
-                        throw std::logic_error("Invalid trim type for s_trim operator");
-                        break;
-                }
-
-                // Update base::Event
-                try
-                {
-                    e->getEvent()->set(
-                        field,
-                        rapidjson::Value(strToTrim.c_str(),
-                                         e->getEvent()->m_doc.GetAllocator())
-                            .Move());
-                }
-                catch (std::exception& ex)
-                {
-                    // TODO Check exception type
-                    return e;
-                }
-
+                fieldValue = &e->getEventValue(field);
+            }
+            catch (std::exception& ex)
+            {
+                // TODO Check exception type
                 return e;
-            });
+            }
+
+            // Check if field is a string
+            if (fieldValue == nullptr || !fieldValue->IsString())
+            {
+                return e;
+            }
+
+            // Get string
+            std::string strToTrim {fieldValue->GetString()};
+
+            // Trim
+            switch (trimType)
+            {
+                case 's':
+                    // Trim begin
+                    strToTrim.erase(0, strToTrim.find_first_not_of(trimChar));
+                    break;
+                case 'e':
+                    // Trim end
+                    strToTrim.erase(strToTrim.find_last_not_of(trimChar) + 1);
+                    break;
+                case 'b':
+                    // Trim both
+                    strToTrim.erase(0, strToTrim.find_first_not_of(trimChar));
+                    strToTrim.erase(strToTrim.find_last_not_of(trimChar) + 1);
+                    break;
+                default:
+                    // if raise here, then the source code is wrong
+                    throw std::logic_error("Invalid trim type for s_trim operator");
+                    break;
+            }
+
+            // Update base::Event
+            try
+            {
+                e->getEvent()->set(
+                    field,
+                    rapidjson::Value(strToTrim.c_str(), e->getEventDocAllocator())
+                        .Move());
+            }
+            catch (std::exception& ex)
+            {
+                // TODO Check exception type
+                return e;
+            }
+
+            return e;
+        });
     };
 }
 
@@ -468,58 +459,56 @@ base::Lifter opBuilderHelperStringConcat(const base::DocumentValue& def,
     std::string failureTrace = fmt::format("{} s_concat Failure", doc.str());
 
     // Return Lifter
-    return [=, parametersArr = std::move(parametersArr), tr = std::move(tr)](base::Observable o)
-    {
+    return [=, parametersArr = std::move(parametersArr), tr = std::move(tr)](
+               base::Observable o) {
         // Append rxcpp operation
-        return o.map(
-            [=, parametersArr = std::move(parametersArr), tr = std::move(tr)](base::Event e)
-            {
-                std::string result {};
+        return o.map([=, parametersArr = std::move(parametersArr), tr = std::move(tr)](
+                         base::Event e) {
+            std::string result {};
 
-                for (auto parameter : parametersArr)
+            for (auto parameter : parametersArr)
+            {
+                if (parameter.at(0) == REFERENCE_ANCHOR)
                 {
-                    if (parameter.at(0) == REFERENCE_ANCHOR)
+                    auto param = json::formatJsonPath(parameter.substr(1));
+                    try
                     {
-                        auto param = json::formatJsonPath(parameter.substr(1));
-                        try
+                        auto value = &e->getEventValue(param);
+                        if (value && value->IsString())
                         {
-                            auto value = &e->getEvent()->get(param);
-                            if (value && value->IsString())
-                            {
-                                result.append(value->GetString());
-                            }
-                            else
-                            {
-                                tr(failureTrace);
-                                return e;
-                            }
+                            result.append(value->GetString());
                         }
-                        catch (std::exception& ex)
+                        else
                         {
                             tr(failureTrace);
                             return e;
                         }
                     }
-                    else
+                    catch (std::exception& ex)
                     {
-                        result.append(parameter);
+                        tr(failureTrace);
+                        return e;
                     }
                 }
+                else
+                {
+                    result.append(parameter);
+                }
+            }
 
-                try
-                {
-                    tr(successTrace);
-                    e->getEvent()->set(
-                        field,
-                        rapidjson::Value(result.c_str(), e->getEvent()->m_doc.GetAllocator())
-                            .Move());
-                    return e;
-                }
-                catch(std::exception& ex)
-                {
-                    return e;
-                }
-            });
+            try
+            {
+                tr(successTrace);
+                e->getEvent()->set(
+                    field,
+                    rapidjson::Value(result.c_str(), e->getEventDocAllocator()).Move());
+                return e;
+            }
+            catch (std::exception& ex)
+            {
+                return e;
+            }
+        });
     };
 }
 
@@ -570,12 +559,11 @@ base::Lifter opBuilderHelperIntCalc(const base::DocumentValue& def, types::Trace
     }
 
     // Return Lifter
-    return [field, op, refValue, value](base::Observable o)
-    {
+    return [field, op, refValue, value](base::Observable o) {
         // Append rxcpp operation
-        return o.map(
-            [=](base::Event e)
-            { return opBuilderHelperIntTransformation(field, op, e, refValue, value); });
+        return o.map([=](base::Event e) {
+            return opBuilderHelperIntTransformation(field, op, e, refValue, value);
+        });
     };
 }
 
@@ -608,48 +596,44 @@ base::Lifter opBuilderHelperRegexExtract(const base::DocumentValue& def,
     }
 
     // Return Lifter
-    return [field, regex_ptr, map_field](base::Observable o)
-    {
+    return [field, regex_ptr, map_field](base::Observable o) {
         // Append rxcpp operation
-        return o.map(
-            [=](base::Event e)
+        return o.map([=](base::Event e) {
+            // TODO Remove try catch
+            const rapidjson::Value* field_str {};
+            try
             {
-                // TODO Remove try catch
-                const rapidjson::Value* field_str {};
-                try
+                field_str = &e->getEventValue(field);
+            }
+            catch (std::exception& ex)
+            {
+                // TODO Check exception type
+                return e;
+            }
+            if (field_str != nullptr && field_str->IsString())
+            {
+                std::string match;
+                if (RE2::PartialMatch(field_str->GetString(), *regex_ptr, &match))
                 {
-                    field_str = &e->getEvent()->get(field);
-                }
-                catch (std::exception& ex)
-                {
-                    // TODO Check exception type
-                    return e;
-                }
-                if (field_str != nullptr && field_str->IsString())
-                {
-                    std::string match;
-                    if (RE2::PartialMatch(field_str->GetString(), *regex_ptr, &match))
+                    // Create and add string to base::Event
+                    try
                     {
-                        // Create and add string to base::Event
-                        try
-                        {
-                            e->getEvent()->set(
-                                map_field,
-                                rapidjson::Value(match.c_str(),
-                                                 e->getEvent()->m_doc.GetAllocator())
-                                    .Move());
-                        }
-                        catch (std::exception& ex)
-                        {
-                            // TODO Check exception type
-                            return e;
-                        }
-
+                        e->getEvent()->set(
+                            map_field,
+                            rapidjson::Value(match.c_str(), e->getEventDocAllocator())
+                                .Move());
+                    }
+                    catch (std::exception& ex)
+                    {
+                        // TODO Check exception type
                         return e;
                     }
+
+                    return e;
                 }
-                return e;
-            });
+            }
+            return e;
+        });
     };
 }
 
