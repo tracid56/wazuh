@@ -73,6 +73,7 @@ void registerBuilders()
     Registry::registerBuilder("middle.helper.i_eq", builders::opBuilderHelperIntEqual);
     Registry::registerBuilder("middle.helper.i_ne", builders::opBuilderHelperIntNotEqual);
     Registry::registerBuilder("helper.i_calc", builders::opBuilderHelperIntCalc);
+    Registry::registerBuilder("helper.json_delete_fields", builders::opBuilderHelperJsonDeleteFields);
     Registry::registerBuilder("middle.helper.r_match",
                               builders::opBuilderHelperRegexMatch);
     Registry::registerBuilder("middle.helper.r_not_match",

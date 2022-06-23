@@ -618,9 +618,9 @@ base::Lifter opBuilderHelperJsonDeleteFields(const base::DocumentValue& def,
         return o.map([=, parametersArr = std::move(parametersArr), tr = std::move(tr)](
                          base::Event e) {
             int deletedFields = 0;
-            std::string field;
             for (auto parameter : parametersArr)
             {
+                std::string field = "";
                 if (parameter.at(0) == REFERENCE_ANCHOR)
                 {
                     try
@@ -633,6 +633,7 @@ base::Lifter opBuilderHelperJsonDeleteFields(const base::DocumentValue& def,
                         else
                         {
                             tr(failureTrace);
+                            continue;
                         }
                     }
                     catch (std::exception& ex)
@@ -642,10 +643,10 @@ base::Lifter opBuilderHelperJsonDeleteFields(const base::DocumentValue& def,
                 }
                 else
                 {
-                    field = parameter;
+                    field = json::formatJsonPath(parameter);
                 }
 
-                if (e->getEvent()->m_doc.RemoveMember(field.c_str()))
+                if (e->getEvent()->m_doc.EraseMember(field.c_str()))
                     ++deletedFields;
             }
 
