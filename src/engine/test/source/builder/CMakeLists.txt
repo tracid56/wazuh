@@ -84,6 +84,7 @@ gtest_discover_tests(opBuilderHelperCheckTest)
 
 add_executable(opBuilderHelperMapTest
   ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/opBuilderHelperIntCalc_test.cpp
+  ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/opBuilderHelperJsonDeleteField_test.cpp
   ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/opBuilderHelperStringConcat_test.cpp
   ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/opBuilderHelperStringLO_test.cpp
   ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/opBuilderHelperStringTrim_test.cpp
