@@ -94,7 +94,7 @@ TEST(opBuilderHelperExists, Exec_multilevel_ok)
 {
     Document doc {R"({
         "check":
-            {"parentObjt_1.field2check": "+exits"}
+            {"parentObjt_1.field2check": "+exists"}
     })"};
 
     Observable input = observable<>::create<Event>(

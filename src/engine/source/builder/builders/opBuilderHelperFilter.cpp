@@ -286,7 +286,7 @@ std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentVa
     }
 
     auto n = atoi(parameters[1].c_str());
-    string s2 = parameters[2];
+    string parameter = parameters[2];
 
     // Tracing
     base::Document defTmp {def};
@@ -294,15 +294,21 @@ std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentVa
     string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=, &s2](base::Event e) {
+    return [=](base::Event e) {
         bool retVal {false};
         try
         {
+            string s2;
             string sourceString {(&e->getEventValue(key))->GetString()};
 
-            if (REFERENCE_ANCHOR == s2[0])
+            if (REFERENCE_ANCHOR == parameter[0])
             {
-                s2 = (&e->getEventValue(json::formatJsonPath(s2.substr(1))))->GetString();
+                auto auxS2 = (&e->getEventValue(json::formatJsonPath(parameter.substr(1))))->GetString();
+                s2 = auxS2;
+            }
+            else
+            {
+                s2 = parameter;
             }
 
             retVal = (sourceString.substr(0, n) == s2.substr(0, n));
