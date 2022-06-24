@@ -49,16 +49,15 @@ public:
      *
      * @param json
      */
-    explicit Document(const char *json)
+    explicit Document(const char* json)
     {
         rapidjson::ParseResult result = m_doc.Parse(json);
         if (!result)
         {
             throw invalid_argument(
-                "Unable to build json document because: " +
-                static_cast<std::string>(
-                    rapidjson::GetParseError_En(result.Code())) +
-                " at " + std::to_string(result.Offset()));
+                "Unable to build json document because: "
+                + static_cast<std::string>(rapidjson::GetParseError_En(result.Code()))
+                + " at " + std::to_string(result.Offset()));
         }
     }
 
@@ -68,17 +67,14 @@ public:
      *
      * @param v
      */
-    Document(const Value &v)
-    {
-        this->m_doc.CopyFrom(v, this->m_doc.GetAllocator());
-    }
+    Document(const Value& v) { this->m_doc.CopyFrom(v, this->m_doc.GetAllocator()); }
 
     /**
      * @brief Construct a new Document object
      *
      * @param other
      */
-    Document(const Document &other)
+    Document(const Document& other)
     {
         this->m_doc.CopyFrom(other.m_doc, this->m_doc.GetAllocator());
     }
@@ -88,7 +84,7 @@ public:
      *
      * @param other
      */
-    Document(Document &&other) noexcept
+    Document(Document&& other) noexcept
         : m_doc {std::move(other.m_doc)}
     {
     }
@@ -99,7 +95,7 @@ public:
      * @param other
      * @return Document&
      */
-    Document &operator=(const Document &other)
+    Document& operator=(const Document& other)
     {
         this->m_doc.CopyFrom(other.m_doc, this->m_doc.GetAllocator());
         return *this;
@@ -111,7 +107,7 @@ public:
      * @param other
      * @return Document&
      */
-    Document &operator=(Document &&other) noexcept
+    Document& operator=(Document&& other) noexcept
     {
         this->m_doc = std::move(other.m_doc);
         return *this;
@@ -123,7 +119,7 @@ public:
      * @param path
      * @return const Value&
      */
-    const Value &get(const std::string &path) const
+    const Value& get(const std::string& path) const
     {
         auto ptr = rapidjson::Pointer(path.c_str());
         if (ptr.IsValid())
@@ -140,8 +136,8 @@ public:
         }
         else
         {
-            throw invalid_argument(
-                "Error, received invalid path in get function: " + path);
+            throw invalid_argument("Error, received invalid path in get function: "
+                                   + path);
         }
     }
 
@@ -151,7 +147,7 @@ public:
      * @param path json path of the value that will be set.
      * @param v new value that will be set.
      */
-    bool set(const std::string &path, const Value &v)
+    bool set(const std::string& path, const Value& v)
     {
         auto ptr = rapidjson::Pointer(path.c_str());
         if (ptr.IsValid())
@@ -161,8 +157,8 @@ public:
         }
         else
         {
-            throw invalid_argument(
-                "Error, received invalid path in set function: " + path);
+            throw invalid_argument("Error, received invalid path in set function: "
+                                   + path);
         }
         return false;
     }
@@ -173,7 +169,7 @@ public:
      * @param to
      * @param from
      */
-    bool set(const std::string &to, const std::string &from)
+    bool set(const std::string& to, const std::string& from)
     {
         auto toPtr = rapidjson::Pointer(to.c_str());
         auto fromPtr = rapidjson::Pointer(from.c_str());
@@ -184,16 +180,15 @@ public:
             if (fromValue)
             {
                 // Static cast is used to ensure new allocation is made
-                toPtr.Set(this->m_doc, static_cast<const Value &>(*fromValue));
+                toPtr.Set(this->m_doc, static_cast<const Value&>(*fromValue));
                 return true;
             }
             // TODO: Is there anything else to do if else?
         }
         else
         {
-            throw invalid_argument(
-                "Error, received invalid path in set function: " + to + " -> " +
-                from);
+            throw invalid_argument("Error, received invalid path in set function: " + to
+                                   + " -> " + from);
         }
         return false;
     }
@@ -206,7 +201,7 @@ public:
      *
      * @return True if equals, false othrewise
      */
-    bool equals(const std::string &source, const std::string &reference) const
+    bool equals(const std::string& source, const std::string& reference) const
     {
         auto sourcePtr = rapidjson::Pointer(source.c_str());
         auto referencePtr = rapidjson::Pointer(reference.c_str());
@@ -226,9 +221,8 @@ public:
         }
         else
         {
-            throw invalid_argument(
-                "Error, received invalid path in equals function: " + source +
-                " == " + reference);
+            throw invalid_argument("Error, received invalid path in equals function: "
+                                   + source + " == " + reference);
         }
     }
 
@@ -242,7 +236,7 @@ public:
      * @return boolean True if the value pointed by path is equal to expected.
      * False if its not equal.
      */
-    bool equals(const std::string &path, const Value &expected) const
+    bool equals(const std::string& path, const Value& expected) const
     {
         auto ptr = rapidjson::Pointer(path.c_str());
         if (ptr.IsValid())
@@ -259,8 +253,8 @@ public:
         }
         else
         {
-            throw invalid_argument(
-                "Error, received invalid path in equals function: " + path);
+            throw invalid_argument("Error, received invalid path in equals function: "
+                                   + path);
         }
     }
 
@@ -271,7 +265,7 @@ public:
      * @return true
      * @return false
      */
-    bool exists(const std::string &path) const
+    bool exists(const std::string& path) const
     {
         auto ptr = rapidjson::Pointer(path.c_str());
         if (ptr.IsValid())
@@ -287,8 +281,37 @@ public:
         }
         else
         {
-            throw invalid_argument(
-                "Error, received invalid path in contains function: " + path);
+            throw invalid_argument("Error, received invalid path in contains function: "
+                                   + path);
+        }
+    }
+
+    /**
+     * @brief Erase value from Json object, it can be object or array but it can't be the
+     * docuemnt root
+     *
+     * @param path
+     * @return true when the value is found and erased
+     * @return false otherwise.
+     */
+    bool erase(const std::string& path)
+    {
+        auto ptr = rapidjson::Pointer(path.c_str());
+        if (ptr.IsValid())
+        {
+            if (ptr.Erase(this->m_doc))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            throw invalid_argument("Error, received invalid path in erase function: "
+                                   + path);
         }
     }
 
@@ -329,10 +352,7 @@ public:
     {
         return m_doc.MemberBegin();
     }
-    auto end() const -> decltype(m_doc.MemberEnd())
-    {
-        return m_doc.MemberEnd();
-    }
+    auto end() const -> decltype(m_doc.MemberEnd()) { return m_doc.MemberEnd(); }
 
     auto getObject() const -> decltype(this->m_doc.GetObject())
     {
@@ -351,7 +371,7 @@ public:
  * @param path
  * @return std::string
  */
-static std::string formatJsonPath(const std::string &path)
+static std::string formatJsonPath(const std::string& path)
 {
     std::string formatedPath {path};
     if (formatedPath.front() != '/')

@@ -24,16 +24,7 @@ class opBuilderHelperJsonDeleteFieldsTestSuite : public testing::Test
 protected:
     // Per-test-suite set-up.
     // Called before the first test in this test suite.
-    static void SetUpTestSuite()
-    {
-
-        // Registry::registerBuilder("check", bld::stageBuilderCheck);
-        // Registry::registerBuilder("condition", bld::opBuilderCondition);
-        // Registry::registerBuilder("middle.condition", bld::middleBuilderCondition);
-        // Registry::registerBuilder("middle.helper.exists", bld::opBuilderHelperExists);
-        // Registry::registerBuilder("combinator.chain", bld::combinatorBuilderChain);
-        // Registry::registerBuilder("helper.s_concat", bld::opBuilderHelperStringConcat);
-    }
+    static void SetUpTestSuite() {}
 
     // Per-test-suite tear-down.
     // Called after the last test in this test suite.
@@ -48,7 +39,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, Builds)
             {
                 "map":
                 {
-                    "qttyOfDeletedFields": "+json_delete_fields/First/Second"
+                    "qttyOfDeletedFields": "+json_delete_fields/Field_1/Field_2"
                 }
             }
         ]
@@ -120,7 +111,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, ExecutesWithTwoDeletes)
             {
                 "map":
                 {
-                    "deletedFields": "+json_delete_fields/First/Second"
+                    "deletedFields": "+json_delete_fields/Field_1/Field_2"
                 }
             }
         ]
@@ -129,9 +120,9 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, ExecutesWithTwoDeletes)
     Observable input = observable<>::create<Event>([=](auto s) {
         s.on_next(createSharedEvent(R"(
                 {
-                "First": "1",
-                "Second": "2",
-                "Third":"whatever"
+                "Field_1": "1",
+                "Field_2": "2",
+                "Third": "Value"
                 }
             )"));
         s.on_completed();
@@ -143,8 +134,8 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, ExecutesWithTwoDeletes)
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 1);
     ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 2);
-    ASSERT_THROW(expected[0]->getEventValue("/First"), std::invalid_argument);
-    ASSERT_THROW(expected[0]->getEventValue("/Second"), std::invalid_argument);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_1"), std::invalid_argument);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_2"), std::invalid_argument);
 }
 
 TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, ExecutesWithReference)
@@ -155,7 +146,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, ExecutesWithReference)
             {
                 "map":
                 {
-                    "deletedFields": "+json_delete_fields/$First/Second"
+                    "deletedFields": "+json_delete_fields/$Field_1/Field_2"
                 }
             }
         ]
@@ -164,8 +155,8 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, ExecutesWithReference)
     Observable input = observable<>::create<Event>([=](auto s) {
         s.on_next(createSharedEvent(R"(
                 {
-                "First": "Third",
-                "Second": "2",
+                "Field_1": "/Third",
+                "Field_2": "2",
                 "Third":""
                 }
             )"));
@@ -178,8 +169,8 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, ExecutesWithReference)
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 1);
     ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 2);
-    ASSERT_EQ(expected[0]->getEventValue("/First"), "Third");
-    ASSERT_THROW(expected[0]->getEventValue("/Second"), std::invalid_argument);
+    ASSERT_EQ(expected[0]->getEventValue("/Field_1"), "/Third");
+    ASSERT_THROW(expected[0]->getEventValue("/Field_2"), std::invalid_argument);
     ASSERT_THROW(expected[0]->getEventValue("/Third"), std::invalid_argument);
 }
 
@@ -191,7 +182,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantExecuteNonStringReference)
             {
                 "map":
                 {
-                    "deletedFields": "+json_delete_fields/$First/Second"
+                    "deletedFields": "+json_delete_fields/$Field_1/Field_2"
                 }
             }
         ]
@@ -200,8 +191,8 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantExecuteNonStringReference)
     Observable input = observable<>::create<Event>([=](auto s) {
         s.on_next(createSharedEvent(R"(
                 {
-                "First": 8,
-                "Second": "2",
+                "Field_1": 8,
+                "Field_2": "2",
                 "Third": 9
                 }
             )"));
@@ -214,8 +205,8 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantExecuteNonStringReference)
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 1);
     ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 1);
-    ASSERT_EQ(expected[0]->getEventValue("/First"), 8);
-    ASSERT_THROW(expected[0]->getEventValue("/Second"), std::invalid_argument);
+    ASSERT_EQ(expected[0]->getEventValue("/Field_1"), 8);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_2"), std::invalid_argument);
     ASSERT_EQ(expected[0]->getEventValue("/Third").GetInt(), 9);
 }
 
@@ -227,7 +218,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteJustFirstReference)
             {
                 "map":
                 {
-                    "deletedFields": "+json_delete_fields/$First/$Second"
+                    "deletedFields": "+json_delete_fields/$Field_1/$Field_2"
                 }
             }
         ]
@@ -236,8 +227,8 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteJustFirstReference)
     Observable input = observable<>::create<Event>([=](auto s) {
         s.on_next(createSharedEvent(R"(
                 {
-                "First": "Second",
-                "Second": "Second",
+                "Field_1": "/Field_2",
+                "Field_2": "Value_2",
                 "Third": 9
                 }
             )"));
@@ -250,7 +241,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteJustFirstReference)
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 1);
     ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 1);
-    ASSERT_THROW(expected[0]->getEventValue("/Second"), std::invalid_argument);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_2"), std::invalid_argument);
 }
 
 TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantDeleteUnexistentField)
@@ -261,7 +252,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantDeleteUnexistentField)
             {
                 "map":
                 {
-                    "deletedFields": "+json_delete_fields/Second"
+                    "deletedFields": "+json_delete_fields/Field_2"
                 }
             }
         ]
@@ -270,7 +261,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantDeleteUnexistentField)
     Observable input = observable<>::create<Event>([=](auto s) {
         s.on_next(createSharedEvent(R"(
                 {
-                "First": "something"
+                "Field_1": "Value"
                 }
             )"));
         s.on_completed();
@@ -282,7 +273,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantDeleteUnexistentField)
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 1);
     ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 0);
-    ASSERT_THROW(expected[0]->getEventValue("/Second"), std::invalid_argument);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_2"), std::invalid_argument);
 }
 
 TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantDeleteUnexistentField_2)
@@ -293,7 +284,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantDeleteUnexistentField_2)
             {
                 "map":
                 {
-                    "deletedFields": "+json_delete_fields/Second/First"
+                    "deletedFields": "+json_delete_fields/Field_2/Field_1"
                 }
             }
         ]
@@ -302,7 +293,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantDeleteUnexistentField_2)
     Observable input = observable<>::create<Event>([=](auto s) {
         s.on_next(createSharedEvent(R"(
                 {
-                "First": "something"
+                "Field_1": "Value"
                 }
             )"));
         s.on_completed();
@@ -314,11 +305,11 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, CantDeleteUnexistentField_2)
     output.subscribe([&](Event e) { expected.push_back(e); });
     ASSERT_EQ(expected.size(), 1);
     ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 1);
-    ASSERT_THROW(expected[0]->getEventValue("/Second"), std::invalid_argument);
-    ASSERT_THROW(expected[0]->getEventValue("/First"), std::invalid_argument);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_2"), std::invalid_argument);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_1"), std::invalid_argument);
 }
 
-TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteJustNestedReference)
+TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteFullNestedField)
 {
     Document doc {R"({
         "normalize":
@@ -326,7 +317,7 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteJustNestedReference)
             {
                 "map":
                 {
-                    "deletedFields": "+json_delete_fields/Second.a"
+                    "deletedFields": "+json_delete_fields/Field_2.a"
                 }
             }
         ]
@@ -335,9 +326,9 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteJustNestedReference)
     Observable input = observable<>::create<Event>([=](auto s) {
         s.on_next(createSharedEvent(R"(
                 {
-                "First": "anotherThing",
-                "Second":
-                    { "a" : "something" },
+                "Field_1": "Value_1",
+                "Field_2":
+                    { "a" : "Value_2" },
                 "Third": 9
                 }
             )"));
@@ -348,10 +339,126 @@ TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteJustNestedReference)
     Observable output = lift(input);
     vector<Event> expected;
     output.subscribe([&](Event e) { expected.push_back(e); });
-    std::cout << expected[0]->getEvent()->prettyStr() << std::endl;
-    // ASSERT_EQ(expected.size(), 1);
-    // ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 1);
-    // ASSERT_THROW(expected[0]->getEventValue("/Second"), std::invalid_argument);
+    ASSERT_EQ(expected.size(), 1);
+    ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 1);
+    ASSERT_TRUE(expected[0]->getEventValue("/Field_2").GetObject().ObjectEmpty());
 }
 
-//Test with array
+TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteSingleNestedField)
+{
+    Document doc {R"({
+        "normalize":
+        [
+            {
+                "map":
+                {
+                    "deletedFields": "+json_delete_fields/Field_2.a"
+                }
+            }
+        ]
+    })"};
+
+    Observable input = observable<>::create<Event>([=](auto s) {
+        s.on_next(createSharedEvent(R"(
+                {
+                "Field_1": "Value_1",
+                "Field_2":
+                    { "a" : "Value_1_a",
+                      "b" : "Value_1_b"
+                    },
+                "Third": 9
+                }
+            )"));
+        s.on_completed();
+    });
+
+    Lifter lift = bld::opBuilderHelperJsonDeleteFields(doc.get("/normalize/0/map"), tr);
+    Observable output = lift(input);
+    vector<Event> expected;
+    output.subscribe([&](Event e) { expected.push_back(e); });
+    ASSERT_EQ(expected.size(), 1);
+    ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 1);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_2/a").GetString(),
+                 std::invalid_argument);
+    ASSERT_STREQ(expected[0]->getEventValue("/Field_2/b").GetString(), "Value_1_b");
+}
+
+TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteSingleArrayField)
+{
+    Document doc {R"({
+        "normalize":
+        [
+            {
+                "map":
+                {
+                    "deletedFields": "+json_delete_fields/Field_2.0.key_a"
+                }
+            }
+        ]
+    })"};
+
+    Observable input = observable<>::create<Event>([=](auto s) {
+        s.on_next(createSharedEvent(R"(
+                {
+                "Field_1": "Value",
+                "Field_2":
+                    [
+                        { "key_a" : "Value_A"},
+                        { "key_a" : "Value_B"},
+                        { "key_a" : "Value_C"}
+                    ]
+                }
+            )"));
+        s.on_completed();
+    });
+
+    Lifter lift = bld::opBuilderHelperJsonDeleteFields(doc.get("/normalize/0/map"), tr);
+    Observable output = lift(input);
+    vector<Event> expected;
+    output.subscribe([&](Event e) { expected.push_back(e); });
+    ASSERT_EQ(expected.size(), 1);
+    ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 1);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_2/0/key_a").GetString(),
+                 std::invalid_argument);
+    ASSERT_STREQ(expected[0]->getEventValue("/Field_2/1/key_a").GetString(), "Value_B");
+    ASSERT_STREQ(expected[0]->getEventValue("/Field_2/2/key_a").GetString(), "Value_C");
+}
+
+TEST_F(opBuilderHelperJsonDeleteFieldsTestSuite, DeleteFullArrayField)
+{
+    Document doc {R"({
+        "normalize":
+        [
+            {
+                "map":
+                {
+                    "deletedFields": "+json_delete_fields/Field_2"
+                }
+            }
+        ]
+    })"};
+
+    Observable input = observable<>::create<Event>([=](auto s) {
+        s.on_next(createSharedEvent(R"(
+                {
+                "Field_1": "Value",
+                "Field_2":
+                    [
+                        { "key_a" : "Value_A"},
+                        { "key_a" : "Value_B"},
+                        { "key_a" : "Value_C"}
+                    ]
+                }
+            )"));
+        s.on_completed();
+    });
+
+    Lifter lift = bld::opBuilderHelperJsonDeleteFields(doc.get("/normalize/0/map"), tr);
+    Observable output = lift(input);
+    vector<Event> expected;
+    output.subscribe([&](Event e) { expected.push_back(e); });
+    ASSERT_EQ(expected.size(), 1);
+    ASSERT_EQ(expected[0]->getEventValue("/deletedFields").GetInt(), 1);
+    ASSERT_THROW(expected[0]->getEventValue("/Field_2").GetString(),
+                 std::invalid_argument);
+}
