@@ -24,6 +24,11 @@ namespace
 
 using opString = std::optional<std::string>;
 using builder::internals::syntax::REFERENCE_ANCHOR;
+using std::runtime_error;
+using std::string;
+
+constexpr const char* SUCCESS_TRACE_MSG {"{} Condition Success."};
+constexpr const char* FAILURE_TRACE_MSG {"{} Condition Failure."};
 
 /**
  * @brief Get the Comparator operator, and the value to compare
@@ -40,8 +45,7 @@ std::tuple<std::string, opString, opString>
 getCompOpParameter(const base::DocumentValue& def)
 {
     // Get destination path
-    std::string field {
-        json::formatJsonPath(def.MemberBegin()->name.GetString())};
+    string field {json::formatJsonPath(def.MemberBegin()->name.GetString())};
     // Get function helper
     if (!def.MemberBegin()->value.IsString())
     {
@@ -53,7 +57,7 @@ getCompOpParameter(const base::DocumentValue& def)
     std::vector<std::string> parameters {utils::string::split(rawValue, '/')};
     if (parameters.size() != 2)
     {
-        throw std::runtime_error("Invalid number of parameters");
+        throw runtime_error("Invalid number of parameters");
     }
 
     std::optional<std::string> refValue {};
@@ -75,20 +79,19 @@ getCompOpParameter(const base::DocumentValue& def)
 namespace builder::internals::builders
 {
 
-// <field>: exists
-std::function<bool(base::Event)>
-opBuilderHelperExists(const base::DocumentValue& def, types::TracerFn tr)
+// <key>: +exists
+std::function<bool(base::Event)> opBuilderHelperExists(const base::DocumentValue& def,
+                                                       types::TracerFn tr)
 {
     // Get Field path to check
-    std::string field {
-        json::formatJsonPath(def.MemberBegin()->name.GetString())};
+    string field {json::formatJsonPath(def.MemberBegin()->name.GetString())};
 
     // Check parameters
     std::vector<std::string> parameters {
         utils::string::split(def.MemberBegin()->value.GetString(), '/')};
     if (parameters.size() != 1)
     {
-        throw std::runtime_error("Invalid number of parameters");
+        throw runtime_error("Invalid number of parameters");
     }
 
     // Tracing
@@ -98,8 +101,7 @@ opBuilderHelperExists(const base::DocumentValue& def, types::TracerFn tr)
                                            def.MemberBegin()->name.GetString());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         if (e->getEvent()->exists(field))
         {
             tr(successTrace);
@@ -113,32 +115,28 @@ opBuilderHelperExists(const base::DocumentValue& def, types::TracerFn tr)
     };
 }
 
-// <field>: not_exists
-std::function<bool(base::Event)>
-opBuilderHelperNotExists(const base::DocumentValue& def, types::TracerFn tr)
+// <key>: +not_exists
+std::function<bool(base::Event)> opBuilderHelperNotExists(const base::DocumentValue& def,
+                                                          types::TracerFn tr)
 {
     // Get Field path to check
-    std::string field {
-        json::formatJsonPath(def.MemberBegin()->name.GetString())};
+    string field {json::formatJsonPath(def.MemberBegin()->name.GetString())};
 
     std::vector<std::string> parameters =
         utils::string::split(def.MemberBegin()->value.GetString(), '/');
     if (parameters.size() != 1)
     {
-        throw std::runtime_error("Invalid number of parameters");
+        throw runtime_error("Invalid number of parameters");
     }
 
     // Tracing
-    std::string successTrace =
-        fmt::format("{{{}: +not_exists}} Condition Success",
-                    def.MemberBegin()->name.GetString());
-    std::string failureTrace =
-        fmt::format("{{{}: +not_exists}} Condition Failure",
-                    def.MemberBegin()->name.GetString());
+    string successTrace = fmt::format("{{{}: +not_exists}} Condition Success",
+                                      def.MemberBegin()->name.GetString());
+    string failureTrace = fmt::format("{{{}: +not_exists}} Condition Failure",
+                                      def.MemberBegin()->name.GetString());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         if (!e->getEvent()->exists(field))
         {
             tr(successTrace);
@@ -216,45 +214,35 @@ bool opBuilderHelperStringComparison(const std::string key,
     // String operation
     switch (op)
     {
-        case '=':
-            return std::string {fieldToCompare->GetString()} == value.value();
-        case '!':
-            return std::string {fieldToCompare->GetString()} != value.value();
-        case '>':
-            return std::string {fieldToCompare->GetString()} > value.value();
+        case '=': return string {fieldToCompare->GetString()} == value.value();
+        case '!': return string {fieldToCompare->GetString()} != value.value();
+        case '>': return string {fieldToCompare->GetString()} > value.value();
         // case '>=':
-        case 'g':
-            return std::string {fieldToCompare->GetString()} >= value.value();
-        case '<':
-            return std::string {fieldToCompare->GetString()} < value.value();
+        case 'g': return string {fieldToCompare->GetString()} >= value.value();
+        case '<': return string {fieldToCompare->GetString()} < value.value();
         // case '<=':
-        case 'l':
-            return std::string {fieldToCompare->GetString()} <= value.value();
+        case 'l': return string {fieldToCompare->GetString()} <= value.value();
         default:
             // if raise here, then the logic is wrong
-            throw std::invalid_argument("Invalid operator: '" +
-                                        std::string {op} + "' ");
+            throw std::invalid_argument("Invalid operator: '" + string {op} + "' ");
     }
 
     return false;
 }
 
-// <field>: s_eq/<value>
-std::function<bool(base::Event)>
-opBuilderHelperStringEQ(const base::DocumentValue& def, types::TracerFn tr)
+// <key>: +s_eq/<value>
+std::function<bool(base::Event)> opBuilderHelperStringEq(const base::DocumentValue& def,
+                                                         types::TracerFn tr)
 {
     auto [key, refValue, value] {getCompOpParameter(def)};
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         // try and catch, return false
         if (opBuilderHelperStringComparison(key, '=', e, refValue, value))
         {
@@ -269,22 +257,88 @@ opBuilderHelperStringEQ(const base::DocumentValue& def, types::TracerFn tr)
     };
 }
 
-// <field>: s_ne/<value>
-std::function<bool(base::Event)>
-opBuilderHelperStringNE(const base::DocumentValue& def, types::TracerFn tr)
+// <key>: +s_eq_n/<n_chars>/<s2>
+std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentValue& def,
+                                                          types::TracerFn tr)
+{
+    if (!def.MemberBegin()->name.IsString())
+    {
+        // Logical error
+        throw runtime_error(
+            "Invalid key type for json_delete_fields operator (str expected).");
+    }
+    // Get field key to be compared
+    string key {json::formatJsonPath(def.MemberBegin()->name.GetString())};
+
+    if (!def.MemberBegin()->value.IsString())
+    {
+        // Logical error
+        throw runtime_error(
+            "Invalid parameter type for json_delete_fields operator (str expected).");
+    }
+
+    auto parameters {utils::string::split(def.MemberBegin()->value.GetString(), '/')};
+
+    if (3 != parameters.size())
+    {
+        throw runtime_error(
+            "Invalid number of parameters for s_eq_n operator (3 expected).");
+    }
+
+    auto n = atoi(parameters[1].c_str());
+    string s2 = parameters[2];
+
+    // Tracing
+    base::Document defTmp {def};
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
+
+    // Return Function
+    return [=, &s2](base::Event e) {
+        bool retVal {false};
+        try
+        {
+            string sourceString {(&e->getEventValue(key))->GetString()};
+
+            if (REFERENCE_ANCHOR == s2[0])
+            {
+                s2 = (&e->getEventValue(json::formatJsonPath(s2.substr(1))))->GetString();
+            }
+
+            retVal = (sourceString.substr(0, n) == s2.substr(0, n));
+
+            // try and catch, return false
+            if (retVal)
+            {
+                tr(successTrace);
+            }
+            else
+            {
+                tr(failureTrace);
+            }
+        }
+        catch (const std::exception& exc)
+        {
+            tr(failureTrace + ": " + exc.what());
+        }
+
+        return retVal;
+    };
+} // namespace builder::internals::builders
+
+// <key>: +s_ne/<value>
+std::function<bool(base::Event)> opBuilderHelperStringNE(const base::DocumentValue& def,
+                                                         types::TracerFn tr)
 {
     auto [key, refValue, value] {getCompOpParameter(def)};
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         if (opBuilderHelperStringComparison(key, '!', e, refValue, value))
         {
             tr(successTrace);
@@ -298,22 +352,19 @@ opBuilderHelperStringNE(const base::DocumentValue& def, types::TracerFn tr)
     };
 }
 
-// <field>: s_gt/<value>|$<ref>
-std::function<bool(base::Event)>
-opBuilderHelperStringGT(const base::DocumentValue& def, types::TracerFn tr)
+// <key>: +s_gt/<value>|$<ref>
+std::function<bool(base::Event)> opBuilderHelperStringGT(const base::DocumentValue& def,
+                                                         types::TracerFn tr)
 {
     auto [key, refValue, value] {getCompOpParameter(def)};
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         if (opBuilderHelperStringComparison(key, '>', e, refValue, value))
         {
             tr(successTrace);
@@ -327,22 +378,19 @@ opBuilderHelperStringGT(const base::DocumentValue& def, types::TracerFn tr)
     };
 }
 
-// <field>: s_ge/<value>|$<ref>
-std::function<bool(base::Event)>
-opBuilderHelperStringGE(const base::DocumentValue& def, types::TracerFn tr)
+// <key>: +s_ge/<value>|$<ref>
+std::function<bool(base::Event)> opBuilderHelperStringGE(const base::DocumentValue& def,
+                                                         types::TracerFn tr)
 {
     auto [key, refValue, value] {getCompOpParameter(def)};
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         if (opBuilderHelperStringComparison(key, 'g', e, refValue, value))
         {
             tr(successTrace);
@@ -356,22 +404,19 @@ opBuilderHelperStringGE(const base::DocumentValue& def, types::TracerFn tr)
     };
 }
 
-// <field>: s_lt/<value>|$<ref>
-std::function<bool(base::Event)>
-opBuilderHelperStringLT(const base::DocumentValue& def, types::TracerFn tr)
+// <key>: +s_lt/<value>|$<ref>
+std::function<bool(base::Event)> opBuilderHelperStringLT(const base::DocumentValue& def,
+                                                         types::TracerFn tr)
 {
     auto [key, refValue, value] {getCompOpParameter(def)};
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         if (opBuilderHelperStringComparison(key, '<', e, refValue, value))
         {
             tr(successTrace);
@@ -385,22 +430,19 @@ opBuilderHelperStringLT(const base::DocumentValue& def, types::TracerFn tr)
     };
 }
 
-// <field>: s_le/<value>|$<ref>
-std::function<bool(base::Event)>
-opBuilderHelperStringLE(const base::DocumentValue& def, types::TracerFn tr)
+// <key>: +s_le/<value>|$<ref>
+std::function<bool(base::Event)> opBuilderHelperStringLE(const base::DocumentValue& def,
+                                                         types::TracerFn tr)
 {
     auto [key, refValue, value] {getCompOpParameter(def)};
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         if (opBuilderHelperStringComparison(key, 'l', e, refValue, value))
         {
             tr(successTrace);
@@ -487,34 +529,30 @@ bool opBuilderHelperIntComparison(const std::string field,
 
         default:
             // if raise here, then the source code is wrong
-            throw std::invalid_argument("Invalid operator: '" +
-                                        std::string {op} + "' ");
+            throw std::invalid_argument("Invalid operator: '" + string {op} + "' ");
     }
 
     return false;
 }
 
 // field: +i_eq/int|$ref/
-std::function<bool(base::Event)>
-opBuilderHelperIntEqual(const base::DocumentValue& def, types::TracerFn tr)
+std::function<bool(base::Event)> opBuilderHelperIntEqual(const base::DocumentValue& def,
+                                                         types::TracerFn tr)
 {
 
     auto [field, refValue, valuestr] {getCompOpParameter(def)};
 
-    std::optional<int> value =
-        valuestr.has_value() ? std::optional<int> {std::stoi(valuestr.value())}
-                             : std::nullopt;
+    std::optional<int> value = valuestr.has_value()
+                                   ? std::optional<int> {std::stoi(valuestr.value())}
+                                   : std::nullopt;
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         if (opBuilderHelperIntComparison(field, '=', e, refValue, value))
         {
             tr(successTrace);
@@ -535,20 +573,17 @@ opBuilderHelperIntNotEqual(const base::DocumentValue& def, types::TracerFn tr)
 
     auto [field, refValue, valuestr] {getCompOpParameter(def)};
 
-    std::optional<int> value =
-        valuestr.has_value() ? std::optional<int> {std::stoi(valuestr.value())}
-                             : std::nullopt;
+    std::optional<int> value = valuestr.has_value()
+                                   ? std::optional<int> {std::stoi(valuestr.value())}
+                                   : std::nullopt;
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         // try and catche, return false
         if (opBuilderHelperIntComparison(field, '!', e, refValue, value))
         {
@@ -570,20 +605,17 @@ opBuilderHelperIntLessThan(const base::DocumentValue& def, types::TracerFn tr)
 
     auto [field, refValue, valuestr] {getCompOpParameter(def)};
 
-    std::optional<int> value =
-        valuestr.has_value() ? std::optional<int> {std::stoi(valuestr.value())}
-                             : std::nullopt;
+    std::optional<int> value = valuestr.has_value()
+                                   ? std::optional<int> {std::stoi(valuestr.value())}
+                                   : std::nullopt;
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         // try and catche, return false
         if (opBuilderHelperIntComparison(field, '<', e, refValue, value))
         {
@@ -600,26 +632,22 @@ opBuilderHelperIntLessThan(const base::DocumentValue& def, types::TracerFn tr)
 
 // field: +i_le/int|$ref/
 std::function<bool(base::Event)>
-opBuilderHelperIntLessThanEqual(const base::DocumentValue& def,
-                                types::TracerFn tr)
+opBuilderHelperIntLessThanEqual(const base::DocumentValue& def, types::TracerFn tr)
 {
 
     auto [field, refValue, valuestr] {getCompOpParameter(def)};
 
-    std::optional<int> value =
-        valuestr.has_value() ? std::optional<int> {std::stoi(valuestr.value())}
-                             : std::nullopt;
+    std::optional<int> value = valuestr.has_value()
+                                   ? std::optional<int> {std::stoi(valuestr.value())}
+                                   : std::nullopt;
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         // try and catche, return false
         if (opBuilderHelperIntComparison(field, 'l', e, refValue, value))
         {
@@ -636,26 +664,22 @@ opBuilderHelperIntLessThanEqual(const base::DocumentValue& def,
 
 // field: +i_gt/int|$ref/
 std::function<bool(base::Event)>
-opBuilderHelperIntGreaterThan(const base::DocumentValue& def,
-                              types::TracerFn tr)
+opBuilderHelperIntGreaterThan(const base::DocumentValue& def, types::TracerFn tr)
 {
 
     auto [field, refValue, valuestr] {getCompOpParameter(def)};
 
-    std::optional<int> value =
-        valuestr.has_value() ? std::optional<int> {std::stoi(valuestr.value())}
-                             : std::nullopt;
+    std::optional<int> value = valuestr.has_value()
+                                   ? std::optional<int> {std::stoi(valuestr.value())}
+                                   : std::nullopt;
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         // try and catche, return false
         if (opBuilderHelperIntComparison(field, '>', e, refValue, value))
         {
@@ -672,26 +696,22 @@ opBuilderHelperIntGreaterThan(const base::DocumentValue& def,
 
 // field: +i_ge/int|$ref/
 std::function<bool(base::Event)>
-opBuilderHelperIntGreaterThanEqual(const base::DocumentValue& def,
-                                   types::TracerFn tr)
+opBuilderHelperIntGreaterThanEqual(const base::DocumentValue& def, types::TracerFn tr)
 {
 
     auto [field, refValue, valuestr] {getCompOpParameter(def)};
 
-    std::optional<int> value =
-        valuestr.has_value() ? std::optional<int> {std::stoi(valuestr.value())}
-                             : std::nullopt;
+    std::optional<int> value = valuestr.has_value()
+                                   ? std::optional<int> {std::stoi(valuestr.value())}
+                                   : std::nullopt;
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         // try and catche, return false
         if (opBuilderHelperIntComparison(field, 'g', e, refValue, value))
         {
@@ -711,13 +731,12 @@ opBuilderHelperIntGreaterThanEqual(const base::DocumentValue& def,
 //*************************************************
 
 // field: +r_match/regexp
-std::function<bool(base::Event)>
-opBuilderHelperRegexMatch(const base::DocumentValue& def, types::TracerFn tr)
+std::function<bool(base::Event)> opBuilderHelperRegexMatch(const base::DocumentValue& def,
+                                                           types::TracerFn tr)
 {
     // Get field
-    std::string field {
-        json::formatJsonPath(def.MemberBegin()->name.GetString())};
-    std::string value {def.MemberBegin()->value.GetString()};
+    string field {json::formatJsonPath(def.MemberBegin()->name.GetString())};
+    string value {def.MemberBegin()->value.GetString()};
 
     std::vector<std::string> parameters {utils::string::split(value, '/')};
     if (parameters.size() != 2)
@@ -728,14 +747,13 @@ opBuilderHelperRegexMatch(const base::DocumentValue& def, types::TracerFn tr)
     auto regex_ptr = std::make_shared<RE2>(parameters[1], RE2::Quiet);
     if (!regex_ptr->ok())
     {
-        const std::string err = "Error compiling regex '" + parameters[1] +
-                                "'. " + regex_ptr->error();
-        throw std::runtime_error(err);
+        const std::string err =
+            "Error compiling regex '" + parameters[1] + "'. " + regex_ptr->error();
+        throw runtime_error(err);
     }
 
     // Return Lifter
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         // TODO Remove try catch
         // TODO Update to use proper reference
         const rapidjson::Value* field_str {};
@@ -758,38 +776,33 @@ opBuilderHelperRegexMatch(const base::DocumentValue& def, types::TracerFn tr)
 
 // field: +r_not_match/regexp
 std::function<bool(base::Event)>
-opBuilderHelperRegexNotMatch(const base::DocumentValue& def,
-                             types::TracerFn tr)
+opBuilderHelperRegexNotMatch(const base::DocumentValue& def, types::TracerFn tr)
 {
     // Get field
-    std::string field {
-        json::formatJsonPath(def.MemberBegin()->name.GetString())};
-    std::string value = def.MemberBegin()->value.GetString();
+    string field {json::formatJsonPath(def.MemberBegin()->name.GetString())};
+    string value = def.MemberBegin()->value.GetString();
 
     std::vector<std::string> parameters = utils::string::split(value, '/');
     if (parameters.size() != 2)
     {
-        throw std::runtime_error("Invalid number of parameters");
+        throw runtime_error("Invalid number of parameters");
     }
 
     auto regex_ptr = std::make_shared<RE2>(parameters[1], RE2::Quiet);
     if (!regex_ptr->ok())
     {
-        const std::string err = "Error compiling regex '" + parameters[1] +
-                                "'. " + regex_ptr->error();
-        throw std::runtime_error(err);
+        const std::string err =
+            "Error compiling regex '" + parameters[1] + "'. " + regex_ptr->error();
+        throw runtime_error(err);
     }
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Lifter
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         // TODO Remove try catch
         // TODO Update to use proper reference
         const rapidjson::Value* field_str {};
@@ -827,27 +840,26 @@ opBuilderHelperRegexNotMatch(const base::DocumentValue& def,
 
 // path_to_ip: +ip_cidr/192.168.0.0/16
 // path_to_ip: +ip_cidr/192.168.0.0/255.255.0.0
-std::function<bool(base::Event)>
-opBuilderHelperIPCIDR(const base::DocumentValue& def, types::TracerFn tr)
+std::function<bool(base::Event)> opBuilderHelperIPCIDR(const base::DocumentValue& def,
+                                                       types::TracerFn tr)
 {
     // Get Field path to check
-    std::string field {
-        json::formatJsonPath(def.MemberBegin()->name.GetString())};
+    string field {json::formatJsonPath(def.MemberBegin()->name.GetString())};
     // Get function helper
     std::string rawValue = def.MemberBegin()->value.GetString();
 
     std::vector<std::string> parameters = utils::string::split(rawValue, '/');
     if (parameters.size() != 3)
     {
-        throw std::runtime_error("Invalid number of parameters");
+        throw runtime_error("Invalid number of parameters");
     }
     else if (parameters[2].empty())
     {
-        throw std::runtime_error("The network can't be empty");
+        throw runtime_error("The network can't be empty");
     }
     else if (parameters[1].empty())
     {
-        throw std::runtime_error("The cidr can't be empty");
+        throw runtime_error("The cidr can't be empty");
     }
 
     uint32_t network {};
@@ -857,7 +869,7 @@ opBuilderHelperIPCIDR(const base::DocumentValue& def, types::TracerFn tr)
     }
     catch (std::exception& e)
     {
-        throw std::runtime_error("Invalid IPv4 address: " + network);
+        throw runtime_error("Invalid IPv4 address: " + network);
     }
 
     uint32_t mask {};
@@ -867,7 +879,7 @@ opBuilderHelperIPCIDR(const base::DocumentValue& def, types::TracerFn tr)
     }
     catch (std::exception& e)
     {
-        throw std::runtime_error("Invalid IPv4 mask: " + mask);
+        throw runtime_error("Invalid IPv4 mask: " + mask);
     }
 
     uint32_t net_lower {network & mask};
@@ -875,14 +887,11 @@ opBuilderHelperIPCIDR(const base::DocumentValue& def, types::TracerFn tr)
 
     // Tracing
     base::Document defTmp {def};
-    std::string successTrace =
-        fmt::format("{} Condition Success", defTmp.str());
-    std::string failureTrace =
-        fmt::format("{} Condition Failure", defTmp.str());
+    std::string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    std::string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Lifter
-    return [=](base::Event e)
-    {
+    return [=](base::Event e) {
         // TODO Remove try catch
         // TODO Update to use proper reference
         const rapidjson::Value* field_str {};

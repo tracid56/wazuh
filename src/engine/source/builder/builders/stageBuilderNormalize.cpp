@@ -65,9 +65,9 @@ static Lifter normalizeMap(const DocumentValue& ref, TracerFn tr)
     {
         try
         {
-            /** TODO: This is a temporary (naive) solution to handle the
-             * mapping. As the mapping methods expect an object, it is necessary
-             * to construct one with the key and value pair.
+            /** TODO: This is a temporary (naive) solution to handle the mapping. As the
+             * mapping methods expect an object, it is necessary to construct one with the
+             * key and value pair.
              */
             rapidjson::Value pairKeyValue(rapidjson::kObjectType);
             DocumentValue val(it->value, docAllocator);
@@ -190,9 +190,9 @@ static Lifter normalizeConditionalMap(const DocumentValue& def, TracerFn tr)
 
     try
     {
-        /** The "check" and "map" operations are chained (in that order) so if a
-         * check fails, then the pipeline aborts its flow. If all the checks
-         * pass, then the pipeline performs the "map" operations. */
+        /** The "check" and "map" operations are chained (in that order) so if a check
+         * fails, then the pipeline aborts its flow. If all the checks pass, then the
+         * pipeline performs the "map" operations. */
         return combinatorBuilderChain(conditionalMapOps);
     }
     catch (std::exception& e)
@@ -283,23 +283,21 @@ Lifter stageBuilderNormalize(const DocumentValue& def, TracerFn tr)
     try
     {
         /** The normalize operations will only be broadcasted if both the "map"
-         * (inconditional) and "conditional map" are present, as the conditional
-         * map could abort the pipeline flow. */
+         * (inconditional) and "conditional map" are present, as the conditional map could
+         * abort the pipeline flow. */
         if (normalizeOps.size() > 1)
         {
-            /** As the map and check-map (conditional map) operations run in
-             * parallel, some special considerations must be taken. The map one
-             * always produces an output and modifies the input object while the
-             * check-map operation may not produce any output. To handle this
-             * situation, these operations can not be serialized (chained) so
-             * they should be combined with the broadcast operation. This leads
-             * to another situation, only one observable should be emitted so
-             * both outputs should be filtered and a dummy one had to be created
-             * to publish the result. */
+            /** As the map and check-map (conditional map) operations run in parallel,
+             * some special considerations must be taken. The map one always produces an
+             * output and modifies the input object while the check-map operation may not
+             * produce any output. To handle this situation, these operations can not be
+             * serialized (chained) so they should be combined with the broadcast
+             * operation. This leads to another situation, only one observable should be
+             * emitted so both outputs should be filtered and a dummy one had to be
+             * created to publish the result. */
             for (auto& op : normalizeOps)
             {
-                op = [op](base::Observable in)
-                {
+                op = [op](base::Observable in) {
                     // Filter map and check-map outputs
                     return op(in).filter([](auto) { return false; });
                 };

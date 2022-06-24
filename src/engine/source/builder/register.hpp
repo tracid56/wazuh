@@ -57,7 +57,8 @@ void registerBuilders()
     Registry::registerBuilder("middle.helper.s_lt", builders::opBuilderHelperStringLT);
     Registry::registerBuilder("middle.helper.s_ge", builders::opBuilderHelperStringGE);
     Registry::registerBuilder("middle.helper.s_gt", builders::opBuilderHelperStringGT);
-    Registry::registerBuilder("middle.helper.s_eq", builders::opBuilderHelperStringEQ);
+    Registry::registerBuilder("middle.helper.s_eq", builders::opBuilderHelperStringEq);
+    Registry::registerBuilder("middle.helper.s_eq_n", builders::opBuilderHelperStringEqN);
     Registry::registerBuilder("middle.helper.s_ne", builders::opBuilderHelperStringNE);
     Registry::registerBuilder("helper.s_up", builders::opBuilderHelperStringUP);
     Registry::registerBuilder("helper.s_lo", builders::opBuilderHelperStringLO);
@@ -73,7 +74,8 @@ void registerBuilders()
     Registry::registerBuilder("middle.helper.i_eq", builders::opBuilderHelperIntEqual);
     Registry::registerBuilder("middle.helper.i_ne", builders::opBuilderHelperIntNotEqual);
     Registry::registerBuilder("helper.i_calc", builders::opBuilderHelperIntCalc);
-    Registry::registerBuilder("helper.json_delete_fields", builders::opBuilderHelperJsonDeleteFields);
+    Registry::registerBuilder("helper.json_delete_fields",
+                              builders::opBuilderHelperJsonDeleteFields);
     Registry::registerBuilder("middle.helper.r_match",
                               builders::opBuilderHelperRegexMatch);
     Registry::registerBuilder("middle.helper.r_not_match",

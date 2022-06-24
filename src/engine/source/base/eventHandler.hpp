@@ -55,8 +55,8 @@ public:
     /**
      * @brief Get an Event Value given its Key
      *
-     * @param key Used to locate the value on the event
-     * @return const rapidjson::Value&
+     * @param key Used to locate the value on the event.
+     * @return const rapidjson::Value& Member value.
      */
     const rapidjson::Value& getEventValue(const std::string& key)
     {

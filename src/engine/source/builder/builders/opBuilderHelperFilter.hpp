@@ -35,8 +35,8 @@ namespace builder::internals::builders
  * @param def The filter definition.
  * @return base::Lifter The lifter with the `exists` filter.
  */
-std::function<bool(base::Event)>
-opBuilderHelperExists(const base::DocumentValue& def, types::TracerFn tr);
+std::function<bool(base::Event)> opBuilderHelperExists(const base::DocumentValue& def,
+                                                       types::TracerFn tr);
 
 /**
  * @brief Create `not_exists` helper function that filters events that not
@@ -46,8 +46,8 @@ opBuilderHelperExists(const base::DocumentValue& def, types::TracerFn tr);
  * @param def The filter definition.
  * @return base::Lifter The lifter with the `not_exists` filter.
  */
-std::function<bool(base::Event)>
-opBuilderHelperNotExists(const base::DocumentValue& def, types::TracerFn tr);
+std::function<bool(base::Event)> opBuilderHelperNotExists(const base::DocumentValue& def,
+                                                          types::TracerFn tr);
 
 //*************************************************
 //*           String filters                      *
@@ -90,8 +90,20 @@ inline bool opBuilderHelperStringComparison(const std::string key,
  * @return base::Lifter The lifter with the `s_eq` filter.
  * @throw std::runtime_error if the parameter is not a string.
  */
-std::function<bool(base::Event)> opBuilderHelperStringEQ(const base::DocumentValue& def,
-                                      types::TracerFn tr);
+std::function<bool(base::Event)> opBuilderHelperStringEq(const base::DocumentValue& def,
+                                                         types::TracerFn tr);
+
+/**
+ * @brief Defines the `s_eq_n` helper function that allows to check if a field is equal to
+ * a given one, taking only into account the first N characters of both strings.
+ *
+ * The filter passes if both strings are equal (case sensitive) on the first N characters.
+ * @param def The filter definition.
+ * @return base::Lifter The lifter with the `s_eq` filter.
+ * @throw std::runtime_error if the parameter is not a string.
+ */
+std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentValue& def,
+                                                          types::TracerFn tr);
 
 /**
  * @brief Create `s_ne` helper function that filters events with a string
@@ -105,7 +117,7 @@ std::function<bool(base::Event)> opBuilderHelperStringEQ(const base::DocumentVal
  * @throw std::runtime_error if the parameter is not a string.
  */
 std::function<bool(base::Event)> opBuilderHelperStringNE(const base::DocumentValue& def,
-                                      types::TracerFn tr);
+                                                         types::TracerFn tr);
 
 /**
  * @brief Create `s_gt` helper function that filters events with a string
@@ -119,7 +131,7 @@ std::function<bool(base::Event)> opBuilderHelperStringNE(const base::DocumentVal
  * @throw std::runtime_error if the parameter is not a string.
  */
 std::function<bool(base::Event)> opBuilderHelperStringGT(const base::DocumentValue& def,
-                                      types::TracerFn tr);
+                                                         types::TracerFn tr);
 
 /**
  * @brief Create `s_ge` helper function that filters events with a string
@@ -133,7 +145,7 @@ std::function<bool(base::Event)> opBuilderHelperStringGT(const base::DocumentVal
  * @throw std::runtime_error if the parameter is not a string.
  */
 std::function<bool(base::Event)> opBuilderHelperStringGE(const base::DocumentValue& def,
-                                      types::TracerFn tr);
+                                                         types::TracerFn tr);
 
 /**
  * @brief Create `s_lt` helper function that filters events with a string
@@ -147,7 +159,7 @@ std::function<bool(base::Event)> opBuilderHelperStringGE(const base::DocumentVal
  * @throw std::runtime_error if the parameter is not a string.
  */
 std::function<bool(base::Event)> opBuilderHelperStringLT(const base::DocumentValue& def,
-                                      types::TracerFn tr);
+                                                         types::TracerFn tr);
 
 /**
  * @brief Create `s_le` helper function that filters events with a string
@@ -161,7 +173,7 @@ std::function<bool(base::Event)> opBuilderHelperStringLT(const base::DocumentVal
  * @throw std::runtime_error if the parameter is not a string.
  */
 std::function<bool(base::Event)> opBuilderHelperStringLE(const base::DocumentValue& def,
-                                      types::TracerFn tr);
+                                                         types::TracerFn tr);
 
 //*************************************************
 //*              Int filters                      *
@@ -204,7 +216,7 @@ inline bool opBuilderHelperIntComparison(const std::string field,
  * @throw std::runtime_error if the parameter is not a integer.
  */
 std::function<bool(base::Event)> opBuilderHelperIntEqual(const base::DocumentValue& def,
-                                      types::TracerFn tr);
+                                                         types::TracerFn tr);
 
 /**
  * @brief Builds helper integer not equal operation.
@@ -216,8 +228,8 @@ std::function<bool(base::Event)> opBuilderHelperIntEqual(const base::DocumentVal
  * @return base::Lifter The lifter with the `i_ne` filter.
  * @throw std::runtime_error if the parameter is not a integer.
  */
-std::function<bool(base::Event)> opBuilderHelperIntNotEqual(const base::DocumentValue& def,
-                                         types::TracerFn tr);
+std::function<bool(base::Event)>
+opBuilderHelperIntNotEqual(const base::DocumentValue& def, types::TracerFn tr);
 
 /**
  * @brief Builds helper integer less than operation.
@@ -229,8 +241,8 @@ std::function<bool(base::Event)> opBuilderHelperIntNotEqual(const base::Document
  * @return base::Lifter The lifter with the `i_lt` filter.
  * @throw std::runtime_error if the parameter is not a integer.
  */
-std::function<bool(base::Event)> opBuilderHelperIntLessThan(const base::DocumentValue& def,
-                                         types::TracerFn tr);
+std::function<bool(base::Event)>
+opBuilderHelperIntLessThan(const base::DocumentValue& def, types::TracerFn tr);
 
 /**
  * @brief Builds helper integer less than equal operation.
@@ -244,8 +256,8 @@ std::function<bool(base::Event)> opBuilderHelperIntLessThan(const base::Document
  * @return base::Lifter The lifter with the `i_le` filter.
  * @throw std::runtime_error if the parameter is not a integer.
  */
-std::function<bool(base::Event)> opBuilderHelperIntLessThanEqual(const base::DocumentValue& def,
-                                              types::TracerFn tr);
+std::function<bool(base::Event)>
+opBuilderHelperIntLessThanEqual(const base::DocumentValue& def, types::TracerFn tr);
 
 /**
  * @brief Builds helper integer greater than operation.
@@ -258,8 +270,8 @@ std::function<bool(base::Event)> opBuilderHelperIntLessThanEqual(const base::Doc
  * @throw std::runtime_error if the parameter is not a integer.
  */
 
-std::function<bool(base::Event)> opBuilderHelperIntGreaterThan(const base::DocumentValue& def,
-                                            types::TracerFn tr);
+std::function<bool(base::Event)>
+opBuilderHelperIntGreaterThan(const base::DocumentValue& def, types::TracerFn tr);
 
 /**
  * @brief Builds helper integer greater than equal operation.
@@ -274,8 +286,7 @@ std::function<bool(base::Event)> opBuilderHelperIntGreaterThan(const base::Docum
  * @throw std::runtime_error if the parameter is not a integer.
  */
 std::function<bool(base::Event)>
-opBuilderHelperIntGreaterThanEqual(const base::DocumentValue& def,
-                                   types::TracerFn tr);
+opBuilderHelperIntGreaterThanEqual(const base::DocumentValue& def, types::TracerFn tr);
 
 /**
  * @brief Builds helper regex match operation.
@@ -285,7 +296,7 @@ opBuilderHelperIntGreaterThanEqual(const base::DocumentValue& def,
  * @return base::Lifter The lifter with the `regex` filter.
  */
 std::function<bool(base::Event)> opBuilderHelperRegexMatch(const base::DocumentValue& def,
-                                        types::TracerFn tr);
+                                                           types::TracerFn tr);
 
 /**
  * @brief Builds helper regex not match operation.
@@ -294,8 +305,8 @@ std::function<bool(base::Event)> opBuilderHelperRegexMatch(const base::DocumentV
  * @param def Definition of the operation to be built
  * @return base::Lifter The lifter with the `regex_not` filter.
  */
-std::function<bool(base::Event)> opBuilderHelperRegexNotMatch(const base::DocumentValue& def,
-                                           types::TracerFn tr);
+std::function<bool(base::Event)>
+opBuilderHelperRegexNotMatch(const base::DocumentValue& def, types::TracerFn tr);
 
 /**
  * @brief Create `ip_cidr` helper function that filters events if the field
@@ -306,7 +317,7 @@ std::function<bool(base::Event)> opBuilderHelperRegexNotMatch(const base::Docume
  * @throw  std::runtime_error if the parameter is not a cidr.
  */
 std::function<bool(base::Event)> opBuilderHelperIPCIDR(const base::DocumentValue& def,
-                                    types::TracerFn tr);
+                                                       types::TracerFn tr);
 
 } // namespace builder::internals::builders
 

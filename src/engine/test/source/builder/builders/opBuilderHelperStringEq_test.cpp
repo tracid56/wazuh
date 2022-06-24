@@ -13,7 +13,6 @@
 
 #include <baseTypes.hpp>
 
-#include "testUtils.hpp"
 #include "opBuilderHelperFilter.hpp"
 #include "testUtils.hpp"
 
@@ -25,27 +24,27 @@ static FakeTrFn tr = [](std::string msg) {
 };
 
 // Build ok
-TEST(opBuilderHelperStringEQ, Builds)
+TEST(opBuilderHelperStringEq, Builds)
 {
     Document doc {R"({
         "check":
             {"field2check": "+s_eq/test_value"}
     })"};
-    ASSERT_NO_THROW(bld::opBuilderHelperStringEQ(doc.get("/check"), tr));
+    ASSERT_NO_THROW(bld::opBuilderHelperStringEq(doc.get("/check"), tr));
 }
 
 // Build incorrect number of arguments
-TEST(opBuilderHelperStringEQ, Builds_incorrect_number_of_arguments)
+TEST(opBuilderHelperStringEq, Builds_incorrect_number_of_arguments)
 {
     Document doc {R"({
         "check":
             {"field2check": "+s_eq/test_value/test_value2"}
     })"};
-    ASSERT_THROW(bld::opBuilderHelperStringEQ(doc.get("/check"), tr), std::runtime_error);
+    ASSERT_THROW(bld::opBuilderHelperStringEq(doc.get("/check"), tr), std::runtime_error);
 }
 
 // Test ok: static values
-TEST(opBuilderHelperStringEQ, Static_string_ok)
+TEST(opBuilderHelperStringEq, Static_string_ok)
 {
     Document doc {R"({
         "check":
@@ -75,7 +74,7 @@ TEST(opBuilderHelperStringEQ, Static_string_ok)
 
     Lifter lift = [=](Observable input)
     {
-        return input.filter(bld::opBuilderHelperStringEQ(doc.get("/check"), tr));
+        return input.filter(bld::opBuilderHelperStringEq(doc.get("/check"), tr));
     };
     Observable output = lift(input);
     vector<Event> expected;
@@ -86,7 +85,7 @@ TEST(opBuilderHelperStringEQ, Static_string_ok)
 }
 
 // Test ok: static values (numbers, compare as string)
-TEST(opBuilderHelperStringEQ, Static_number_ok)
+TEST(opBuilderHelperStringEq, Static_number_ok)
 {
     Document doc {R"({
         "check":
@@ -116,7 +115,7 @@ TEST(opBuilderHelperStringEQ, Static_number_ok)
 
     Lifter lift = [=](Observable input)
     {
-        return input.filter(bld::opBuilderHelperStringEQ(doc.get("/check"), tr));
+        return input.filter(bld::opBuilderHelperStringEq(doc.get("/check"), tr));
     };
     Observable output = lift(input);
     vector<Event> expected;
@@ -127,7 +126,7 @@ TEST(opBuilderHelperStringEQ, Static_number_ok)
 }
 
 // Test ok: dynamic values (string)
-TEST(opBuilderHelperStringEQ, Dynamics_string_ok)
+TEST(opBuilderHelperStringEq, Dynamics_string_ok)
 {
     Document doc {R"({
         "check":
@@ -172,7 +171,7 @@ TEST(opBuilderHelperStringEQ, Dynamics_string_ok)
 
     Lifter lift = [=](Observable input)
     {
-        return input.filter(bld::opBuilderHelperStringEQ(doc.get("/check"), tr));
+        return input.filter(bld::opBuilderHelperStringEq(doc.get("/check"), tr));
     };
     Observable output = lift(input);
     vector<Event> expected;
@@ -183,7 +182,7 @@ TEST(opBuilderHelperStringEQ, Dynamics_string_ok)
 }
 
 // Test ok: multilevel dynamic values (string)
-TEST(opBuilderHelperStringEQ, MultiLevel_dynamics_string_ok)
+TEST(opBuilderHelperStringEq, MultiLevel_dynamics_string_ok)
 {
     Document doc {R"({
         "check":
@@ -237,7 +236,7 @@ TEST(opBuilderHelperStringEQ, MultiLevel_dynamics_string_ok)
 
     Lifter lift = [=](Observable input)
     {
-        return input.filter(bld::opBuilderHelperStringEQ(doc.get("/check"), tr));
+        return input.filter(bld::opBuilderHelperStringEq(doc.get("/check"), tr));
     };
     Observable output = lift(input);
     vector<Event> expected;
@@ -252,7 +251,7 @@ TEST(opBuilderHelperStringEQ, MultiLevel_dynamics_string_ok)
 }
 
 // Test ok: dynamic values (number)
-TEST(opBuilderHelperStringEQ, Dynamics_number_ok)
+TEST(opBuilderHelperStringEq, Dynamics_number_ok)
 {
     Document doc {R"({
         "check":
@@ -303,7 +302,7 @@ TEST(opBuilderHelperStringEQ, Dynamics_number_ok)
 
     Lifter lift = [=](Observable input)
     {
-        return input.filter(bld::opBuilderHelperStringEQ(doc.get("/check"), tr));
+        return input.filter(bld::opBuilderHelperStringEq(doc.get("/check"), tr));
     };
     Observable output = lift(input);
     vector<Event> expected;
