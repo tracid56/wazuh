@@ -23,7 +23,7 @@ void RSyncImplementation::release()
 
     for (const auto& ctx : m_remoteSyncContexts)
     {
-        ctx.second->m_msgDispatcher.rundown();
+        ctx.second->m_msgDispatcher->rundown();
     }
 
     m_remoteSyncContexts.clear();
@@ -31,16 +31,16 @@ void RSyncImplementation::release()
 
 void RSyncImplementation::releaseContext(const RSYNC_HANDLE handle)
 {
-    remoteSyncContext(handle)->m_msgDispatcher.rundown();
+    remoteSyncContext(handle)->m_msgDispatcher->rundown();
     std::lock_guard<std::mutex> lock{ m_mutex };
     m_remoteSyncContexts.erase(handle);
 }
 
-RSYNC_HANDLE RSyncImplementation::create()
+RSYNC_HANDLE RSyncImplementation::create(const size_t maxQueueSize)
 {
     const auto spRSyncContext
     {
-        std::make_shared<RSyncContext>()
+        std::make_shared<RSyncContext>(maxQueueSize)
     };
     const RSYNC_HANDLE handle{ spRSyncContext.get() };
     std::lock_guard<std::mutex> lock{m_mutex};
@@ -147,7 +147,7 @@ void RSyncImplementation::registerSyncId(const RSYNC_HANDLE handle,
 
     const SyncMsgBodyType syncMessageType { SyncMsgBodyTypeMap.at(syncConfiguration.at("decoder_type")) };
 
-    ctx->m_msgDispatcher.setMessageDecoderType(messageHeaderID, syncMessageType);
+    ctx->m_msgDispatcher->setMessageDecoderType(messageHeaderID, syncMessageType);
 
     const auto registerCallback
     {
@@ -175,7 +175,7 @@ void RSyncImplementation::registerSyncId(const RSYNC_HANDLE handle,
 
         }
     };
-    ctx->m_msgDispatcher.addCallback(messageHeaderID, registerCallback);
+    ctx->m_msgDispatcher->addCallback(messageHeaderID, registerCallback);
 }
 
 
@@ -185,7 +185,7 @@ void RSyncImplementation::push(const RSYNC_HANDLE handle, const std::vector<unsi
     {
         remoteSyncContext(handle)
     };
-    spRSyncContext->m_msgDispatcher.push(data);
+    spRSyncContext->m_msgDispatcher->push(data);
 }
 
 void RSyncImplementation::sendChecksumFail(const std::shared_ptr<DBSyncWrapper>& spDBSyncWrapper,
