@@ -257,7 +257,7 @@ std::function<bool(base::Event)> opBuilderHelperStringEq(const base::DocumentVal
     };
 }
 
-// <key>: +s_starts/<n_chars>/<s2>
+// <key>: +s_starts/<n_chars>/<startString>
 std::function<bool(base::Event)>
 opBuilderHelperStringStarts(const base::DocumentValue& def, types::TracerFn tr)
 {
@@ -297,25 +297,35 @@ opBuilderHelperStringStarts(const base::DocumentValue& def, types::TracerFn tr)
         bool retVal {false};
         try
         {
-            string s2;
-            const string sourceString {(&e->getEventValue(key))->GetString()};
+            string startString;
 
-            if (REFERENCE_ANCHOR == parameter[0])
+            const auto eValue = &e->getEventValue(key);
+            if (eValue->IsString())
             {
-                // s2 cannot be directly assigned
-                auto auxS2 =
-                    (&e->getEventValue(json::formatJsonPath(parameter.substr(1))))
-                        ->GetString();
-                s2 = auxS2;
-            }
-            else
-            {
-                s2 = parameter;
-            }
+                const string sourceString {eValue->GetString()};
 
-            if (sourceString.length() >= s2.length())
-            {
-                retVal = (sourceString.substr(0, s2.length()) == s2);
+                if (REFERENCE_ANCHOR == parameter[0])
+                {
+                    // startString cannot be directly assigned
+                    auto auxStartString =
+                        (&e->getEventValue(json::formatJsonPath(parameter.substr(1))))
+                            ->GetString();
+                    startString = auxStartString;
+                }
+                else
+                {
+                    startString = parameter;
+                }
+
+                if (startString.length() == 0)
+                {
+                    retVal = true; // TODO: is this the expected output?
+                }
+                else if (sourceString.length() >= startString.length())
+                {
+                    retVal =
+                        (sourceString.substr(0, startString.length()) == startString);
+                }
             }
 
             tr(retVal ? successTrace : failureTrace);
