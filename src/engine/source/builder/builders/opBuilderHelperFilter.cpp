@@ -257,9 +257,9 @@ std::function<bool(base::Event)> opBuilderHelperStringEq(const base::DocumentVal
     };
 }
 
-// <key>: +s_eq_n/<n_chars>/<s2>
-std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentValue& def,
-                                                          types::TracerFn tr)
+// <key>: +s_starts/<n_chars>/<s2>
+std::function<bool(base::Event)>
+opBuilderHelperStringStarts(const base::DocumentValue& def, types::TracerFn tr)
 {
     if (!def.MemberBegin()->name.IsString())
     {
@@ -279,19 +279,18 @@ std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentVa
 
     auto parameters {utils::string::split(def.MemberBegin()->value.GetString(), '/')};
 
-    if (3 != parameters.size())
+    if (2 != parameters.size())
     {
         throw runtime_error(
-            "Invalid number of parameters for s_eq_n operator (3 expected).");
+            "Invalid number of parameters for s_starts operator (3 expected).");
     }
 
-    auto n = atoi(parameters[1].c_str());
-    string parameter = parameters[2];
+    const string parameter = parameters[1];
 
-    // Tracing
+    // Tracing variables
     base::Document defTmp {def};
-    string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
-    string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
+    const string successTrace = fmt::format(SUCCESS_TRACE_MSG, defTmp.str());
+    const string failureTrace = fmt::format(FAILURE_TRACE_MSG, defTmp.str());
 
     // Return Function
     return [=](base::Event e) {
@@ -299,11 +298,14 @@ std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentVa
         try
         {
             string s2;
-            string sourceString {(&e->getEventValue(key))->GetString()};
+            const string sourceString {(&e->getEventValue(key))->GetString()};
 
             if (REFERENCE_ANCHOR == parameter[0])
             {
-                auto auxS2 = (&e->getEventValue(json::formatJsonPath(parameter.substr(1))))->GetString();
+                // s2 cannot be directly assigned
+                auto auxS2 =
+                    (&e->getEventValue(json::formatJsonPath(parameter.substr(1))))
+                        ->GetString();
                 s2 = auxS2;
             }
             else
@@ -311,17 +313,12 @@ std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentVa
                 s2 = parameter;
             }
 
-            retVal = (sourceString.substr(0, n) == s2.substr(0, n));
+            if (sourceString.length() >= s2.length())
+            {
+                retVal = (sourceString.substr(0, s2.length()) == s2);
+            }
 
-            // try and catch, return false
-            if (retVal)
-            {
-                tr(successTrace);
-            }
-            else
-            {
-                tr(failureTrace);
-            }
+            tr(retVal ? successTrace : failureTrace);
         }
         catch (const std::exception& exc)
         {
@@ -330,7 +327,7 @@ std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentVa
 
         return retVal;
     };
-} // namespace builder::internals::builders
+}
 
 // <key>: +s_ne/<value>
 std::function<bool(base::Event)> opBuilderHelperStringNE(const base::DocumentValue& def,

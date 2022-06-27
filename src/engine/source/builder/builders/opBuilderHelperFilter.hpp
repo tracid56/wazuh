@@ -94,16 +94,17 @@ std::function<bool(base::Event)> opBuilderHelperStringEq(const base::DocumentVal
                                                          types::TracerFn tr);
 
 /**
- * @brief Defines the `s_eq_n` helper function that allows to check if a field is equal to
- * a given one, taking only into account the first N characters of both strings.
+ * @brief Defines the `s_starts` helper function that allows to check if a field string
+ * starts as a given one.
  *
  * The filter passes if both strings are equal (case sensitive) on the first N characters.
  * @param def The filter definition.
- * @return base::Lifter The lifter with the `s_eq` filter.
+ * @return base::Lifter The lifter with the `s_starts` filter.
+ * @throw std::runtime_error if the number of parameter is not the expected one.
  * @throw std::runtime_error if the parameter is not a string.
  */
-std::function<bool(base::Event)> opBuilderHelperStringEqN(const base::DocumentValue& def,
-                                                          types::TracerFn tr);
+std::function<bool(base::Event)>
+opBuilderHelperStringStarts(const base::DocumentValue& def, types::TracerFn tr);
 
 /**
  * @brief Create `s_ne` helper function that filters events with a string

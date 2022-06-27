@@ -58,8 +58,9 @@ void registerBuilders()
     Registry::registerBuilder("middle.helper.s_ge", builders::opBuilderHelperStringGE);
     Registry::registerBuilder("middle.helper.s_gt", builders::opBuilderHelperStringGT);
     Registry::registerBuilder("middle.helper.s_eq", builders::opBuilderHelperStringEq);
-    Registry::registerBuilder("middle.helper.s_eq_n", builders::opBuilderHelperStringEqN);
     Registry::registerBuilder("middle.helper.s_ne", builders::opBuilderHelperStringNE);
+    Registry::registerBuilder("middle.helper.s_starts",
+                              builders::opBuilderHelperStringStarts);
     Registry::registerBuilder("helper.s_up", builders::opBuilderHelperStringUP);
     Registry::registerBuilder("helper.s_lo", builders::opBuilderHelperStringLO);
     Registry::registerBuilder("helper.s_trim", builders::opBuilderHelperStringTrim);
