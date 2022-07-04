@@ -3,5 +3,6 @@
     "sync_interval": 60,
     "file_limit": 20,
     "registry_limit": 20,
-    "registry_sync": true
+    "registry_sync": true,
+    "min_sync_interval":10
 }
