@@ -264,8 +264,7 @@ opBuilderHelperStringStarts(const base::DocumentValue& def, types::TracerFn tr)
     if (!def.MemberBegin()->name.IsString())
     {
         // Logical error
-        throw runtime_error(
-            "Invalid key type for json_delete_fields operator (str expected).");
+        throw runtime_error("Invalid key type for s_starts operator (str expected).");
     }
     // Get field key to be compared
     string key {json::formatJsonPath(def.MemberBegin()->name.GetString())};
@@ -274,7 +273,7 @@ opBuilderHelperStringStarts(const base::DocumentValue& def, types::TracerFn tr)
     {
         // Logical error
         throw runtime_error(
-            "Invalid parameter type for json_delete_fields operator (str expected).");
+            "Invalid parameter type for s_starts operator (str expected).");
     }
 
     auto parameters {utils::string::split(def.MemberBegin()->value.GetString(), '/')};
@@ -467,6 +466,140 @@ std::function<bool(base::Event)> opBuilderHelperStringLE(const base::DocumentVal
             return false;
         }
     };
+}
+
+std::function<bool(base::Event)>
+opBuilderHelperStringContainnment(const base::DocumentValue& def, types::TracerFn tr, bool negativeResult)
+{
+    // Get field
+    string field {json::formatJsonPath(def.MemberBegin()->name.GetString())};
+
+    // check right type for helper
+    if (!def.MemberBegin()->value.IsString())
+    {
+        // Logical error
+        throw std::runtime_error(
+            "Invalid value type for s_contains operator (str expected)");
+    }
+
+    // check right type for field
+    if (!def.MemberBegin()->name.IsString())
+    {
+        // Logical error
+        throw std::runtime_error(
+            "Invalid parameter type for s_contains operator (str expected)");
+    }
+
+    // split parameters separated by '/'
+    auto parameters = utils::string::split(def.MemberBegin()->value.GetString(), '/');
+    if (parameters.size() < 2)
+    {
+        throw runtime_error("Invalid number of parameters");
+    }
+
+    // removing first element (helper function name)
+    parameters.erase(parameters.begin());
+
+    // check if parameters aren't empty
+    for (auto param : parameters)
+    {
+        if (param.empty())
+        {
+            throw std::runtime_error("one parameter is an empty string");
+        }
+    }
+
+    // Tracing
+    base::Document doc {def};
+    std::string successTrace = fmt::format("{} s_contains Success", doc.str());
+    std::string failureTrace = fmt::format("{} s_contains Failure", doc.str());
+
+    // Return Function
+    return
+        [=, parameters = std::move(parameters)](base::Event e) {
+            const rapidjson::Value* fieldValue {};
+            try
+            {
+                fieldValue = &e->getEventValue(field);
+            }
+            catch (std::exception& ex)
+            {
+                tr(failureTrace);
+                return false;
+            }
+
+            if (fieldValue && fieldValue->IsString())
+            {
+                const std::string sFieldValue = fieldValue->GetString();
+
+                for (auto parameter : parameters)
+                {
+                    std::string strToCheck = parameter;
+                    // search for reference value
+                    if (parameter.at(0) == REFERENCE_ANCHOR)
+                    {
+                        auto param = json::formatJsonPath(parameter.substr(1));
+                        try
+                        {
+                            auto value = &e->getEventValue(param);
+                            if (value && value->IsString())
+                            {
+                                strToCheck = value->GetString();
+                                if(strToCheck.empty())
+                                {
+                                    tr(failureTrace);
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                tr(failureTrace);
+                                return false;
+                            }
+                        }
+                        catch (std::exception& ex)
+                        {
+                            tr(failureTrace);
+                            return false;
+                        }
+                    }
+
+                    // when negativeResult is true checks if find reachs the end
+                    if (!negativeResult && (sFieldValue.find(strToCheck) != std::string::npos)
+                        || negativeResult && (sFieldValue.find(strToCheck) == std::string::npos))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        tr(failureTrace);
+                        return false;
+                    }
+                }
+
+                tr(successTrace);
+                return true;
+            }
+            else
+            {
+                tr(failureTrace);
+                return false;
+            }
+        };
+}
+
+// <field>: +s_contains/<value1>|$<ref1>/value2>|$<ref2>/...
+std::function<bool(base::Event)>
+opBuilderHelperStringContains(const base::DocumentValue& def, types::TracerFn tr)
+{
+    return opBuilderHelperStringContainnment(def, tr, false);
+}
+
+// <field>: +s_not_contains/<value1>|$<ref1>/value2>|$<ref2>/...
+std::function<bool(base::Event)>
+opBuilderHelperStringNotContains(const base::DocumentValue& def, types::TracerFn tr)
+{
+    return opBuilderHelperStringContainnment(def, tr, true);
 }
 
 //*************************************************

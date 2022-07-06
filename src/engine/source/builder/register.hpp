@@ -61,6 +61,10 @@ void registerBuilders()
     Registry::registerBuilder("middle.helper.s_ne", builders::opBuilderHelperStringNE);
     Registry::registerBuilder("middle.helper.s_starts",
                               builders::opBuilderHelperStringStarts);
+    Registry::registerBuilder("middle.helper.s_contains",
+                              builders::opBuilderHelperStringContains);
+    Registry::registerBuilder("middle.helper.s_not_contains",
+                              builders::opBuilderHelperStringNotContains);
     Registry::registerBuilder("helper.s_up", builders::opBuilderHelperStringUP);
     Registry::registerBuilder("helper.s_lo", builders::opBuilderHelperStringLO);
     Registry::registerBuilder("helper.s_trim", builders::opBuilderHelperStringTrim);

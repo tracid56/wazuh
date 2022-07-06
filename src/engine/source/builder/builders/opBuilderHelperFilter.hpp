@@ -176,6 +176,28 @@ std::function<bool(base::Event)> opBuilderHelperStringLT(const base::DocumentVal
 std::function<bool(base::Event)> opBuilderHelperStringLE(const base::DocumentValue& def,
                                                          types::TracerFn tr);
 
+/**
+ * @brief checks wheter a string (or several) is contained inside a field or not
+ * <field>: +s_contains/<value1>|$<ref1>/value2>|$<ref2>/...
+ * @param def The filter definition.
+ * @return base::Lifter The lifter with the `s_le` filter.
+ * true if all elements where contained inside the field false otherwise
+ * @throw std::runtime_error if the parameter is not a string.
+ */
+std::function<bool(base::Event)>
+opBuilderHelperStringContains(const base::DocumentValue& def, types::TracerFn tr);
+
+/**
+ * @brief checks wheter a string (or several) are not contained inside a field or not
+ * <field>: +s_not_contains/<value1>|$<ref1>/value2>|$<ref2>/...
+ * @param def The filter definition.
+ * @return base::Lifter The lifter with the `s_le` filter.
+ * true if all elements wheren't contained inside the field false otherwise
+ * @throw std::runtime_error if the parameter is not a string.
+ */
+std::function<bool(base::Event)>
+opBuilderHelperStringNotContains(const base::DocumentValue& def, types::TracerFn tr);
+
 //*************************************************
 //*              Int filters                      *
 //*************************************************

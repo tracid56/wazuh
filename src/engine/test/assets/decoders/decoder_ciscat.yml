@@ -1,0 +1,80 @@
+name: decoder_ciscat
+
+check:
+  - queue: +i_eq/65
+  - type: +s_eq/scan_info
+  - event.cis: +exists
+
+normalize:
+  - check:
+    - location: +s_starts/(
+    - location: +s_not_contains/>
+    map:
+      _check_1: true
+
+  - check:
+    - location: +s_starts/(
+    - location: +s_not_contains/>wodle_cis-cat
+    map:
+      _check_2: true
+
+  - check:
+    - location: +s_ne/wodle_cis-cat
+    map:
+      _check_3: true
+
+  - check:
+    - event.cis.scan_id: +not_exists #TODO: check if field exists with this name
+    map:
+      event.cis.scan_id: NULL
+
+  - check:
+    - event.cis.timestamp: +not_exists
+    map:
+      event.cis.timestamp: NULL
+
+  - check:
+    - event.cis.benchmark: +not_exists
+    map:
+      event.cis.benchmark: NULL
+
+  - check:
+    - event.cis.profile: +not_exists
+    map:
+      event.cis.profile: NULL
+
+  - check:
+    - event.cis.pass: +not_exists
+    map:
+      event.cis.pass: NULL
+
+  - check:
+    - event.cis.fail: +not_exists
+    map:
+      event.cis.fail: NULL
+
+  - check:
+    - event.cis.error: +not_exists
+    map:
+      event.cis.error: NULL
+
+  - check:
+    - event.cis.notchecked: +not_exists
+    map:
+      event.cis.notchecked: NULL
+
+  - check:
+    - event.cis.unknown: +not_exists
+    map:
+      event.cis.unknown: NULL
+
+  - check:
+    - event.cis.score: +not_exists
+    map:
+      event.cis.score: NULL
+
+  - check:
+    - _can_continue: NOT ($check_1 OR $check_2 OR $check_3)
+    map:
+      query: +s_concat/agent /$event.agent.id /ciscat save/$event.cis.scan_id /$event.cis.timestamp|/$event.cis.benchmark|/$event.cis.profile|/$event.cis.pass|/$event.cis.fail|/$event.cis.error|/$event.cis.notchecked|/$event.cis.unknown|/$event.cis.score|
+      query_response: +wdb_update/$query
