@@ -119,6 +119,8 @@ int DecodeWinevt(Eventinfo *lf){
         goto cleanup;
     }
 
+    merror(cJSON_Print(received_event));
+
     json_received_event = cJSON_GetObjectItem(received_event, "Event");
 
     if(json_received_event == NULL) {
@@ -675,6 +677,20 @@ int DecodeWinevt(Eventinfo *lf){
 
     if(find_msg){
         filtered_string = replace_win_format(find_msg, 1);
+
+        // Processing message
+        Eventinfo *lf_message;
+        lf_message->log = find_msg;
+        lf_message->program_name = "eventchannel_message";
+
+        OSDecoderNode *node = OS_GetFirstOSDecoder(lf_message->program_name);
+        regex_matching decoder_match;
+        memset(&decoder_match, 0, sizeof(regex_matching));
+
+        DecodeEvent(lf_message, NULL, &decoder_match, node);
+
+        // Extraer campos del lf_message + añadirlos al JSON + Montar el JSON final
+
         cJSON_AddStringToObject(json_system_in, "message", filtered_string);
         os_free(find_msg);
     }
