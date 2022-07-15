@@ -188,3 +188,8 @@ add_executable(definitions_test
   ${BUILDER_TEST_SOURCE_DIR}/definitions_test.cpp
 )
 gtest_discover_tests(definitions_test)
+
+add_executable(opBuilderSCAdecoderTest
+  ${BUILDER_BUILDERS_TEST_SOURCE_DIR}/opBuilderSCAdecoder_test.cpp
+)
+gtest_discover_tests(opBuilderSCAdecoderTest)

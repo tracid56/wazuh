@@ -25,6 +25,7 @@ add_library(builders OBJECT
     builders/assetBuilderRule.cpp
     builders/combinatorBuilderBroadcast.cpp
     builders/combinatorBuilderChain.cpp
+    builders/opBuilderARWrite.cpp
     builders/opBuilderCondition.cpp
     builders/opBuilderFileOutput.cpp
     builders/opBuilderHelperFilter.cpp
@@ -33,8 +34,8 @@ add_library(builders OBJECT
     builders/opBuilderMap.cpp
     builders/opBuilderMapReference.cpp
     builders/opBuilderMapValue.cpp
+    builders/opBuilderSCAdecoder.cpp
     builders/opBuilderWdbSync.cpp
-    builders/opBuilderARWrite.cpp
     builders/stageBuilderCheck.cpp
     builders/stageBuilderNormalize.cpp
     builders/stageBuilderOutputs.cpp

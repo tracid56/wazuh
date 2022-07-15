@@ -29,6 +29,7 @@
 #include <builders/opBuilderMap.hpp>
 #include <builders/opBuilderMapReference.hpp>
 #include <builders/opBuilderMapValue.hpp>
+#include <builders/opBuilderSCAdecoder.hpp>
 #include <builders/opBuilderWdbSync.hpp>
 #include <builders/stageBuilderCheck.hpp>
 #include <builders/stageBuilderNormalize.hpp>
@@ -92,6 +93,8 @@ void registerBuilders()
     Registry::registerBuilder("helper.wdb_query", builders::opBuilderWdbSyncQuery);
     Registry::registerBuilder("helper.wdb_update", builders::opBuilderWdbSyncUpdate);
     Registry::registerBuilder("helper.ar_write", builders::opBuilderARWrite);
+    // SCA Decoder
+    Registry::registerBuilder("helper.sca_decoder", builders::opBuilderSCAdecoder);
     // Combinators
     Registry::registerBuilder("combinator.chain", builders::combinatorBuilderChain);
     Registry::registerBuilder("combinator.broadcast",
